@@ -15,163 +15,106 @@ function App() {
     if (!mapContainer.current || map.current) return;
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
-      style: "mapbox://styles/mapbox/streets-v10",
+      style: "mapbox://styles/mapbox/light-v10",
       center: [initialLat, initialLong],
-      zoom: 13,
+      zoom: 0,
       attributionControl: false,
     });
     map.current.on('load', () => {
-      getRiders();
-      getDrivers();
+      flyTo("San Francisco");
+      const refreshInterval = setInterval(() => {
+        getRiders();
+        getDrivers();
+      }, 100);
+      return () => clearInterval(refreshInterval);
     });
   });
 
-  const getRiders = () => {
-    if (!map.current) return;
-
-    axios.get('http://localhost:8080/riders')
-      .then(response => {
-        const riders = response.data;
-
-        // Create GeoJSON feature collection
-        const geojson = {
-          type: 'FeatureCollection',
-          features: riders.map((rider: {
-            id: string;
-            first_name: string;
-            last_name: string;
-            location: { latitude: number; longitude: number }
-          }) => ({
-            type: 'Feature',
-            geometry: {
-              type: 'Point',
-              coordinates: [rider.location.longitude, rider.location.latitude]
-            },
-            properties: {
-              id: rider.id,
-              name: `${rider.first_name} ${rider.last_name}`
-            }
-          }))
-        };
-
-        // Add GeoJSON source
-        map.current!.addSource('riders', {
-          type: 'geojson',
-          data: geojson as mapboxgl.GeoJSONSourceOptions['data']
-        });
-
-        // Add layer for points
-        map.current!.addLayer({
-          id: 'riders',
-          type: 'circle',
-          source: 'riders',
-          paint: {
-            'circle-radius': 6,
-            'circle-color': SINGLESTORE_PURPLE_500
-          }
-        });
-
-        // Adjust map view to fit all points
-        if (riders.length > 0) {
-          const bounds = new mapboxgl.LngLatBounds();
-          riders.forEach((rider: { location: { longitude: number; latitude: number } }) => {
-            bounds.extend([rider.location.longitude, rider.location.latitude]);
-          });
-          map.current!.fitBounds(bounds, { padding: 50, duration: 500, maxZoom: 12 });
-        }
-      })
-      .catch(error => {
-        console.error('Error fetching riders:', error);
-      });
-  }
-
-  const getDrivers = () => {
-    if (!map.current) return;
-
-    axios.get('http://localhost:8080/drivers')
-      .then(response => {
-        const drivers = response.data;
-
-        // Create GeoJSON feature collection
-        const geojson = {
-          type: 'FeatureCollection',
-          features: drivers.map((driver: {
-            id: string;
-            first_name: string;
-            last_name: string;
-            location: { latitude: number; longitude: number }
-          }) => ({
-            type: 'Feature',
-            geometry: {
-              type: 'Point',
-              coordinates: [driver.location.longitude, driver.location.latitude]
-            },
-            properties: {
-              id: driver.id,
-              name: `${driver.first_name} ${driver.last_name}`
-            }
-          }))
-        };
-
-        // Add GeoJSON source
-        map.current!.addSource('drivers', {
-          type: 'geojson',
-          data: geojson as mapboxgl.GeoJSONSourceOptions['data']
-        });
-
-        // Add layer for points
-        map.current!.addLayer({
-          id: 'drivers',
-          type: 'circle',
-          source: 'drivers',
-          paint: {
-            'circle-radius': 6,
-            'circle-color': SINGLESTORE_PURPLE_700
-          }
-        });
-      })
-      .catch(error => {
-        console.error('Error fetching riders:', error);
-      });
-  }
-
-  // useEffect(() => {
-  //   if (lastMessage !== null) {
-  //     const data = JSON.parse(lastMessage.data);
-  //     if (map.current) {
-  //       if (!map.current.isMoving()) {
-  //         map.current.flyTo({
-  //           center: [data.longitude, data.latitude],
-  //           animate: true,
-  //           zoom: 16,
-  //           speed: 4,
-  //           bearing: data.heading,
-  //         });
-  //         removeMarkers();
-  //         const marker = new mapboxgl.Marker(vehicleMarker())
-  //           .setLngLat([data.longitude, data.latitude])
-  //           .addTo(map.current);
-  //         mapMarkers.push(marker);
-  //       }
-  //     }
-  //   }
-  // }, [lastMessage]);
-
-  const vehicleMarker = () => {
-    const el = document.createElement("div");
-    el.className = "vehicle-marker";
-    el.style.width = "40px";
-    el.style.height = "40px";
-    el.style.borderRadius = "50%";
-    el.style.backgroundImage = "url('/icons/gps-marker-light.png')";
-    el.style.backgroundSize = "cover";
-    return el;
+  const flyTo = (city: string) => {
+    let coordinates = [0, 0]
+    switch (city) {
+      case 'San Francisco':
+        coordinates = [-122.4431, 37.7567]
+        break;
+    }
+    if (map.current) {
+      map.current.flyTo({ center: [coordinates[0], coordinates[1]], zoom: 12, duration: 2000 });
+    }
   };
 
-  const removeMarkers = () => {
-    mapMarkers.forEach((marker) => marker.remove());
-    console.log("Removing markers");
-    mapMarkers = [];
+  const fetchData = async (endpoint: string) => {
+    try {
+      const response = await axios.get(`http://localhost:8080/${endpoint}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching ${endpoint}:`, error);
+      return [];
+    }
+  };
+  
+  const createGeoJSON = (data: any[], type: 'riders' | 'drivers', status: string) => ({
+    type: 'FeatureCollection',
+    features: data.filter(item => item.status === status).map((item) => ({
+      type: 'Feature',
+      geometry: {
+        type: 'Point',
+        coordinates: [item.location.longitude, item.location.latitude]
+      },
+      properties: {
+        id: item.id,
+        name: `${item.first_name} ${item.last_name}`
+      }
+    }))
+  });
+  
+  const updateMapLayer = (map: mapboxgl.Map, layerId: string, geojson: any, color: string) => {
+    if (map.getSource(layerId)) {
+      // Update existing source
+      (map.getSource(layerId) as mapboxgl.GeoJSONSource).setData(geojson);
+    } else {
+      // Add new source and layer
+      map.addSource(layerId, {
+        type: 'geojson',
+        data: geojson as mapboxgl.GeoJSONSourceOptions['data']
+      });
+
+      map.addLayer({
+        id: layerId,
+        type: 'circle',
+        source: layerId,
+        paint: {
+          'circle-radius': 6,
+          'circle-color': color
+        }
+      });
+    }
+  };
+  
+  const getRiders = async () => {
+    if (!map.current) return;
+
+    const riders = await fetchData('riders');
+    
+    // const idleRiders = createGeoJSON(riders, 'riders', 'idle');
+    // updateMapLayer(map.current, 'riders-idle', idleRiders, '#bababa');
+    
+    const requestedRiders = createGeoJSON(riders, 'riders', 'requested');
+    updateMapLayer(map.current, 'riders-requested', requestedRiders, SINGLESTORE_PURPLE_500);
+
+    const waitingRiders = createGeoJSON(riders, 'riders', 'waiting');
+    updateMapLayer(map.current, 'riders-waiting', waitingRiders, '#bababa');
+  };
+  
+  const getDrivers = async () => {
+    if (!map.current) return;
+
+    const drivers = await fetchData('drivers');
+    
+    const availableDrivers = createGeoJSON(drivers, 'drivers', 'available');
+    updateMapLayer(map.current, 'drivers-available', availableDrivers, SINGLESTORE_PURPLE_700);
+    
+    const inProgressDrivers = createGeoJSON(drivers, 'drivers', 'in_progress');
+    updateMapLayer(map.current, 'drivers-in-progress', inProgressDrivers, '#5ed67e');
   };
 
   return (

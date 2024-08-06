@@ -1,19 +1,23 @@
 package database
 
-import "simulator/models"
+import (
+	"simulator/models"
+
+	cmap "github.com/orcaman/concurrent-map/v2"
+)
 
 var Local *LocalStore
 
 type LocalStore struct {
-	Riders  map[string]models.Rider
-	Drivers map[string]models.Driver
-	Trips   map[string]models.Trip
+	Riders  cmap.ConcurrentMap[string, models.Rider]
+	Drivers cmap.ConcurrentMap[string, models.Driver]
+	Trips   cmap.ConcurrentMap[string, models.Trip]
 }
 
 func InitializeLocal() {
 	Local = &LocalStore{
-		Riders:  make(map[string]models.Rider, 0),
-		Drivers: make(map[string]models.Driver, 0),
-		Trips:   make(map[string]models.Trip, 0),
+		Riders:  cmap.New[models.Rider](),
+		Drivers: cmap.New[models.Driver](),
+		Trips:   cmap.New[models.Trip](),
 	}
 }

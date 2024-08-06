@@ -62,6 +62,21 @@ func GetDistanceBetweenCoordinates(lat1, lng1, lat2, lng2 float64) float64 {
 	return distance
 }
 
+func GenerateMiddleCoordinates(startLat, startLng, endLat, endLng, intervalDistance float64) [][2]float64 {
+	totalDistance := GetDistanceBetweenCoordinates(startLat, startLng, endLat, endLng)
+	numPoints := int(math.Floor(totalDistance / intervalDistance))
+	result := make([][2]float64, numPoints)
+
+	for i := 0; i < numPoints; i++ {
+		t := float64(i+1) * intervalDistance / totalDistance
+		interpolatedLat := startLat + t*(endLat-startLat)
+		interpolatedLng := startLng + t*(endLng-startLng)
+		result[i] = [2]float64{interpolatedLat, interpolatedLng}
+	}
+
+	return result
+}
+
 func LoadGeoData() {
 	var err error
 	sfPolygon, err = loadSFPolygon()

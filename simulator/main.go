@@ -12,11 +12,6 @@ func main() {
 	service.LoadGeoData()
 	database.Initialize()
 
-	api.NewResourceArrayEndpoint("/riders", api.SerializeMapToJSONArray(database.Local.Riders))
-	api.NewResourceArrayEndpoint("/drivers", api.SerializeMapToJSONArray(database.Local.Drivers))
-	api.NewResourceArrayEndpoint("/trips", api.SerializeMapToJSONArray(database.Local.Trips))
-	api.Serve()
-
 	// riders, err := exporter.ImportRidersFromCSV("data/riders.csv")
 	// if err != nil {
 	// 	riders = service.GenerateRiders(config.NumRiders, "San Francisco")
@@ -40,13 +35,15 @@ func main() {
 	drivers := service.GenerateDrivers(config.NumDrivers, "San Francisco")
 
 	for _, rider := range riders {
-		database.Local.Riders[rider.ID] = rider
+		database.Local.Riders.Set(rider.ID, rider)
+		go service.StartRiderLoop(rider.ID, "San Francisco")
+		time.Sleep(10 * time.Millisecond)
 	}
 	for _, driver := range drivers {
-		database.Local.Drivers[driver.ID] = driver
+		database.Local.Drivers.Set(driver.ID, driver)
+		go service.StartDriverLoop(driver.ID, "San Francisco")
+		time.Sleep(10 * time.Millisecond)
 	}
 
-	service.RequestRide(riders[0].ID, "San Francisco")
-	time.Sleep(5 * time.Second)
-	service.AcceptRide(service.GetLastTrip(service.FindTripsForRider(riders[0].ID)).ID, drivers[0].ID)
+	api.StartServer()
 }

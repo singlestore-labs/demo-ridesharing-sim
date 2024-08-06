@@ -14,4 +14,5 @@ type Driver struct {
 	DateOfBirth time.Time `json:"date_of_birth"`
 	CreatedAt   time.Time `json:"created_at"`
 	Location    Location  `json:"location"`
+	Status      string    `json:"status"`
 }

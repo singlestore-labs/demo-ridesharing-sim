@@ -1,10 +1,35 @@
 package service
 
 import (
+	"fmt"
 	"simulator/config"
+	"simulator/database"
 	"simulator/models"
 	"time"
 )
+
+func StartDriverLoop(userID string, city string) {
+	initLat, initLong := GenerateCoordinateInCity(city)
+	UpdateLocationForDriver(userID, models.Location{
+		Latitude:  initLat,
+		Longitude: initLong,
+	})
+	for {
+		UpdateStatusForDriver(userID, "available")
+		time.Sleep(time.Duration(config.Faker.IntBetween(500, 2000)) * time.Millisecond)
+		request := GetClosestRequest(initLat, initLong)
+		for request.ID == "" {
+			// fmt.Printf("Driver %s waiting for request\n", userID)
+			time.Sleep(100 * time.Millisecond)
+			request = GetClosestRequest(initLat, initLong)
+		}
+		AcceptRide(request.ID, userID)
+		UpdateStatusForDriver(userID, "in_progress")
+		fmt.Printf("Driver %s accepted request %s\n", userID, request.ID)
+		StartTripLoop(request.ID)
+		fmt.Printf("Driver %s completed trip %s\n\n", userID, request.ID)
+	}
+}
 
 func GenerateDriver(city string) models.Driver {
 	lat, long := GenerateCoordinateInCity(city)
@@ -31,4 +56,36 @@ func GenerateDrivers(numDrivers int, city string) []models.Driver {
 		drivers[i] = GenerateDriver(city)
 	}
 	return drivers
+}
+
+func GetAllDrivers() []models.Driver {
+	drivers := make([]models.Driver, 0)
+	for _, driver := range database.Local.Drivers.Items() {
+		drivers = append(drivers, driver)
+	}
+	return drivers
+}
+
+func GetDriver(userID string) models.Driver {
+	driver, _ := database.Local.Drivers.Get(userID)
+	return driver
+}
+
+func GetLocationForDriver(userID string) models.Location {
+	driver := GetDriver(userID)
+	return driver.Location
+}
+
+func UpdateLocationForDriver(userID string, location models.Location) {
+	driver := GetDriver(userID)
+	driver.Location = location
+	driver.Location.UserID = userID
+	driver.Location.Timestamp = time.Now()
+	database.Local.Drivers.Set(userID, driver)
+}
+
+func UpdateStatusForDriver(userID string, status string) {
+	driver := GetDriver(userID)
+	driver.Status = status
+	database.Local.Drivers.Set(userID, driver)
 }
