@@ -17,11 +17,12 @@ func StartDriverLoop(userID string, city string) {
 	for {
 		UpdateStatusForDriver(userID, "available")
 		time.Sleep(time.Duration(config.Faker.IntBetween(500, 2000)) * time.Millisecond)
-		request := GetClosestRequest(initLat, initLong)
+		driverLocation := GetLocationForDriver(userID)
+		request := GetClosestRequest(driverLocation.Latitude, driverLocation.Longitude)
 		for request.ID == "" {
 			// fmt.Printf("Driver %s waiting for request\n", userID)
 			time.Sleep(100 * time.Millisecond)
-			request = GetClosestRequest(initLat, initLong)
+			request = GetClosestRequest(driverLocation.Latitude, driverLocation.Longitude)
 		}
 		AcceptRide(request.ID, userID)
 		UpdateStatusForDriver(userID, "in_progress")

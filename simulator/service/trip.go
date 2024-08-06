@@ -114,7 +114,8 @@ func StartTripLoop(tripID string) {
 		Latitude:  trip.PickupLat,
 		Longitude: trip.PickupLong,
 	})
-	time.Sleep(1 * time.Second)
+	// pickup rider
+	time.Sleep(time.Duration(config.Faker.IntBetween(200, 3000)) * time.Millisecond)
 	trip.Status = "en_route"
 	trip.PickupTime = time.Now()
 	UpsertTrip(trip)
@@ -139,7 +140,8 @@ func StartTripLoop(tripID string) {
 		Latitude:  trip.DropoffLat,
 		Longitude: trip.DropoffLong,
 	})
-	time.Sleep(1 * time.Second)
+	// dropoff rider
+	time.Sleep(time.Duration(config.Faker.IntBetween(200, 3000)) * time.Millisecond)
 	trip.Status = "completed"
 	trip.DropoffTime = time.Now()
 	UpsertTrip(trip)
