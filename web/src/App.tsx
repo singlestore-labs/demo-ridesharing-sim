@@ -21,58 +21,117 @@ function App() {
       attributionControl: false,
     });
     map.current.on('load', () => {
-      getCoordinates();
+      getRiders();
+      getDrivers();
     });
   });
 
-  const getCoordinates = () => {
+  const getRiders = () => {
     if (!map.current) return;
 
-    axios.get('http://localhost:8080/coordinates')
+    axios.get('http://localhost:8080/riders')
       .then(response => {
-        const coordinates = response.data;
+        const riders = response.data;
 
         // Create GeoJSON feature collection
         const geojson = {
           type: 'FeatureCollection',
-          features: coordinates.map((coord: { longitude: number; latitude: number }) => ({
+          features: riders.map((rider: {
+            id: string;
+            first_name: string;
+            last_name: string;
+            location: { latitude: number; longitude: number }
+          }) => ({
             type: 'Feature',
             geometry: {
               type: 'Point',
-              coordinates: [coord.longitude, coord.latitude]
+              coordinates: [rider.location.longitude, rider.location.latitude]
             },
-            properties: {}
+            properties: {
+              id: rider.id,
+              name: `${rider.first_name} ${rider.last_name}`
+            }
           }))
         };
 
         // Add GeoJSON source
-        map.current!.addSource('coordinates', {
+        map.current!.addSource('riders', {
           type: 'geojson',
           data: geojson as mapboxgl.GeoJSONSourceOptions['data']
         });
 
         // Add layer for points
         map.current!.addLayer({
-          id: 'coordinates',
+          id: 'riders',
           type: 'circle',
-          source: 'coordinates',
+          source: 'riders',
           paint: {
-            'circle-radius': 4,
-            'circle-color': SINGLESTORE_PURPLE_700
+            'circle-radius': 6,
+            'circle-color': SINGLESTORE_PURPLE_500
           }
         });
 
         // Adjust map view to fit all points
-        if (coordinates.length > 0) {
+        if (riders.length > 0) {
           const bounds = new mapboxgl.LngLatBounds();
-          coordinates.forEach((coord: { longitude: number; latitude: number }) => {
-            bounds.extend([coord.longitude, coord.latitude]);
+          riders.forEach((rider: { location: { longitude: number; latitude: number } }) => {
+            bounds.extend([rider.location.longitude, rider.location.latitude]);
           });
           map.current!.fitBounds(bounds, { padding: 50, duration: 500, maxZoom: 12 });
         }
       })
       .catch(error => {
-        console.error('Error fetching coordinates:', error);
+        console.error('Error fetching riders:', error);
+      });
+  }
+
+  const getDrivers = () => {
+    if (!map.current) return;
+
+    axios.get('http://localhost:8080/drivers')
+      .then(response => {
+        const drivers = response.data;
+
+        // Create GeoJSON feature collection
+        const geojson = {
+          type: 'FeatureCollection',
+          features: drivers.map((driver: {
+            id: string;
+            first_name: string;
+            last_name: string;
+            location: { latitude: number; longitude: number }
+          }) => ({
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [driver.location.longitude, driver.location.latitude]
+            },
+            properties: {
+              id: driver.id,
+              name: `${driver.first_name} ${driver.last_name}`
+            }
+          }))
+        };
+
+        // Add GeoJSON source
+        map.current!.addSource('drivers', {
+          type: 'geojson',
+          data: geojson as mapboxgl.GeoJSONSourceOptions['data']
+        });
+
+        // Add layer for points
+        map.current!.addLayer({
+          id: 'drivers',
+          type: 'circle',
+          source: 'drivers',
+          paint: {
+            'circle-radius': 6,
+            'circle-color': SINGLESTORE_PURPLE_700
+          }
+        });
+      })
+      .catch(error => {
+        console.error('Error fetching riders:', error);
       });
   }
 
