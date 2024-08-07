@@ -58,7 +58,8 @@ func UpsertTrip(trip models.Trip) {
 
 func RequestRide(userID string, city string) string {
 	riderLocation := GetLocationForRider(userID)
-	destLat, destLong := GenerateCoordinateWithinDistanceInCity(city, riderLocation.Latitude, riderLocation.Longitude, 500)
+	tripDistance := config.Faker.RandomFloat(1, 100, 16000)
+	destLat, destLong := GenerateCoordinateWithinDistanceInCity(city, riderLocation.Latitude, riderLocation.Longitude, tripDistance)
 	trip := models.Trip{
 		ID:          config.Faker.UUID().V4(),
 		RiderID:     userID,

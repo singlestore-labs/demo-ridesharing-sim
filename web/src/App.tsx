@@ -1,7 +1,12 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import mapboxgl from "mapbox-gl";
 import { MAPBOX_TOKEN, SINGLESTORE_PURPLE_500, SINGLESTORE_PURPLE_700 } from "@/consts/config";
 import axios from "axios";
+import { toast } from "sonner";
+import { Card } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ModeToggle } from "@/components/mode-toggle";
+import { useTheme } from "@/components/theme-provider";
 mapboxgl.accessToken = MAPBOX_TOKEN;
 
 function App() {
@@ -9,26 +14,49 @@ function App() {
   const map = useRef<mapboxgl.Map | null>(null);
   const initialLat = 50;
   const initialLong = 50;
-  let mapMarkers: mapboxgl.Marker[] = [];
+  
+  const [refreshInterval, setRefreshInterval] = useState(1000);
+  const { theme } = useTheme();
 
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
-      style: "mapbox://styles/mapbox/light-v10",
+      style: theme === 'dark' ? "mapbox://styles/mapbox/dark-v10" : "mapbox://styles/mapbox/light-v10",
       center: [initialLat, initialLong],
       zoom: 0,
       attributionControl: false,
     });
     map.current.on('load', () => {
       flyTo("San Francisco");
-      const refreshInterval = setInterval(() => {
-        getRiders();
-        getDrivers();
-      }, 100);
-      return () => clearInterval(refreshInterval);
     });
   });
+
+  useEffect(() => {
+    if (map.current) {
+      map.current.setStyle(theme === 'dark' ? "mapbox://styles/mapbox/dark-v10" : "mapbox://styles/mapbox/light-v10");
+    }
+  }, [theme]);
+
+  const refreshData = useCallback(() => {
+    const fetchData = async () => {
+      try {
+        await Promise.all([getRiders(), getDrivers()]);
+      } catch (error) {
+        toast.error("Error refreshing data");
+      }
+    };
+
+    fetchData();
+    const intervalId = setInterval(fetchData, refreshInterval);
+
+    return () => clearInterval(intervalId);
+  }, [refreshInterval]);
+
+  useEffect(() => {
+    const cleanup = refreshData();
+    return cleanup;
+  }, [refreshData]);
 
   const flyTo = (city: string) => {
     let coordinates = [0, 0]
@@ -118,7 +146,25 @@ function App() {
   };
 
   return (
-    <div className="h-screen w-screen">
+    <div className="h-screen w-screen relative">
+      <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2">
+        <Card className="p-2">
+          <div className="flex items-center gap-2">
+            <p>Refresh Interval:</p>
+            <Select onValueChange={(value) => setRefreshInterval(Number(value))} value={refreshInterval.toString()}>
+            <SelectTrigger className="w-[80px]">
+                <SelectValue placeholder="Refresh Interval" />
+              </SelectTrigger>
+              <SelectContent>
+                  <SelectItem value="1000">1s</SelectItem>
+                <SelectItem value="5000">5s</SelectItem>
+                <SelectItem value="10000">10s</SelectItem>
+            </SelectContent>
+          </Select>
+          </div>
+        </Card>
+        <ModeToggle />
+      </div>
       <div ref={mapContainer} className="h-full w-full" />
     </div>
   );
