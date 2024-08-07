@@ -17,6 +17,16 @@ func GetAllTrips() []models.Trip {
 	return trips
 }
 
+func GetTripsByStatus(status string) []models.Trip {
+	trips := make([]models.Trip, 0)
+	for _, trip := range GetAllTrips() {
+		if trip.Status == status {
+			trips = append(trips, trip)
+		}
+	}
+	return trips
+}
+
 func GetTrip(tripID string) models.Trip {
 	trip, _ := database.Local.Trips.Get(tripID)
 	return trip

@@ -1,9 +1,11 @@
 package main
 
 import (
+	"os"
 	"simulator/api"
 	"simulator/config"
 	"simulator/database"
+	"simulator/exporter"
 	"simulator/service"
 	"time"
 )
@@ -47,6 +49,15 @@ func main() {
 			database.Local.Drivers.Set(driver.ID, driver)
 			go service.StartDriverLoop(driver.ID, "San Francisco")
 			time.Sleep(time.Duration(config.Faker.IntBetween(1, 100)) * time.Millisecond)
+		}
+	}()
+
+	go func() {
+		for {
+			time.Sleep(5 * time.Minute)
+			trips := service.GetTripsByStatus("completed")
+			exporter.ExportTripsToCSV(trips)
+			os.Exit(0)
 		}
 	}()
 

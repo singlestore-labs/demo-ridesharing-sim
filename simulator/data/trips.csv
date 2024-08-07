@@ -1,0 +1,3 @@
+id,driver_id,rider_id,status,request_time,accept_time,pickup_time,dropoff_time,fare,distance,pickup_lat,pickup_long,dropoff_lat,dropoff_long,city
+e1a430da-e0b0-44d0-8ccc-798f1bf34e84,1d340ed2-a9ee-4bff-9d7e-d8378b95999c,df1e42a0-6d2d-45e7-a694-05de4d24b5eb,completed,2024-08-07T13:20:53-07:00,2024-08-07T13:20:53-07:00,2024-08-07T13:21:20-07:00,2024-08-07T13:21:39-07:00,0,1329.44,37.72,-122.44,37.72,-122.43,San Francisco
+9692b80c-d971-4355-8d3e-5cd7ae787903,54cdc7af-75c9-407d-a43c-0187ed5aeabb,0c510302-ba6a-4a0d-8197-eaaf573ed4fd,completed,2024-08-07T13:20:49-07:00,2024-08-07T13:20:49-07:00,2024-08-07T13:21:29-07:00,2024-08-07T13:21:37-07:00,0,452.90,37.78,-122.48,37.78,-122.48,San Francisco

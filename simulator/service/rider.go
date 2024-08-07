@@ -72,6 +72,16 @@ func GetAllRiders() []models.Rider {
 	return riders
 }
 
+func GetRidersInCity(city string) []models.Rider {
+	riders := make([]models.Rider, 0)
+	for _, rider := range database.Local.Riders.Items() {
+		if rider.Location.City == city {
+			riders = append(riders, rider)
+		}
+	}
+	return riders
+}
+
 func GetRider(userID string) models.Rider {
 	rider, _ := database.Local.Riders.Get(userID)
 	return rider

@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"simulator/models"
+	"strconv"
 	"time"
 )
 
@@ -152,3 +153,58 @@ func ImportDriversFromCSV(filePath string) ([]models.Driver, error) {
 	}
 	return drivers, nil
 }
+
+func ExportTripsToCSV(trips []models.Trip) {
+	// Create CSV file for trips
+	tripsFile, err := os.Create("data/trips.csv")
+	if err != nil {
+		log.Fatal("Could not create riders.csv file", err)
+	}
+	defer tripsFile.Close()
+
+	tripsWriter := csv.NewWriter(tripsFile)
+	defer tripsWriter.Flush()
+
+	// Write header for trips CSV
+	tripsWriter.Write([]string{"id", "driver_id", "rider_id", "status", "request_time", "accept_time", "pickup_time", "dropoff_time", "fare", "distance", "pickup_lat", "pickup_long", "dropoff_lat", "dropoff_long", "city"})
+
+	// Generate and write trips
+	for _, trip := range trips {
+		tripsWriter.Write([]string{
+			trip.ID,
+			trip.DriverID,
+			trip.RiderID,
+			trip.Status,
+			trip.RequestTime.Format(time.RFC3339),
+			trip.AcceptTime.Format(time.RFC3339),
+			trip.PickupTime.Format(time.RFC3339),
+			trip.DropoffTime.Format(time.RFC3339),
+			strconv.Itoa(trip.Fare),
+			strconv.FormatFloat(trip.Distance, 'f', 2, 64),
+			strconv.FormatFloat(trip.PickupLat, 'f', 8, 64),
+			strconv.FormatFloat(trip.PickupLong, 'f', 8, 64),
+			strconv.FormatFloat(trip.DropoffLat, 'f', 8, 64),
+			strconv.FormatFloat(trip.DropoffLong, 'f', 8, 64),
+			trip.City,
+		})
+	}
+}
+
+/*
+	ID       string `json:"id"`
+	DriverID string `json:"driver_id"`
+	RiderID  string `json:"rider_id"`
+	// Status can be "requested", "accepted", "en_route", "completed"
+	Status      string    `json:"status"`
+	RequestTime time.Time `json:"request_time"`
+	AcceptTime  time.Time `json:"accept_time"`
+	PickupTime  time.Time `json:"pickup_time"`
+	DropoffTime time.Time `json:"dropoff_time"`
+	Fare        int       `json:"fare"`
+	Distance    float64   `json:"distance"`
+	PickupLat   float64   `json:"pickup_lat"`
+	PickupLong  float64   `json:"pickup_long"`
+	DropoffLat  float64   `json:"dropoff_lat"`
+	DropoffLong float64   `json:"dropoff_long"`
+	City        string    `json:"city"`
+*/
