@@ -8,8 +8,9 @@ import (
 )
 
 func GetAllRiders(c *gin.Context) {
-	if c.Query("city") != "" {
-		c.JSON(http.StatusOK, service.GetRidersInCity(c.Query("city")))
+	city := c.Query("city")
+	if city != "" {
+		c.JSON(http.StatusOK, service.GetRidersByCity(city))
 	} else {
 		c.JSON(http.StatusOK, service.GetAllRiders())
 	}

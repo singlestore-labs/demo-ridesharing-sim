@@ -69,6 +69,16 @@ func GetAllDrivers() []models.Driver {
 	return drivers
 }
 
+func GetDriversByCity(city string) []models.Driver {
+	drivers := make([]models.Driver, 0)
+	for _, driver := range database.Local.Drivers.Items() {
+		if driver.Location.City == city {
+			drivers = append(drivers, driver)
+		}
+	}
+	return drivers
+}
+
 func GetDriver(userID string) models.Driver {
 	driver, _ := database.Local.Drivers.Get(userID)
 	return driver

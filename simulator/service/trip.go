@@ -17,10 +17,30 @@ func GetAllTrips() []models.Trip {
 	return trips
 }
 
+func GetTripsByCityAndStatus(city string, status string) []models.Trip {
+	trips := make([]models.Trip, 0)
+	for _, trip := range GetAllTrips() {
+		if trip.City == city && trip.Status == status {
+			trips = append(trips, trip)
+		}
+	}
+	return trips
+}
+
 func GetTripsByStatus(status string) []models.Trip {
 	trips := make([]models.Trip, 0)
 	for _, trip := range GetAllTrips() {
 		if trip.Status == status {
+			trips = append(trips, trip)
+		}
+	}
+	return trips
+}
+
+func GetTripsByCity(city string) []models.Trip {
+	trips := make([]models.Trip, 0)
+	for _, trip := range GetAllTrips() {
+		if trip.City == city {
 			trips = append(trips, trip)
 		}
 	}

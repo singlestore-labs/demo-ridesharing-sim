@@ -8,5 +8,10 @@ import (
 )
 
 func GetAllDrivers(c *gin.Context) {
-	c.JSON(http.StatusOK, service.GetAllDrivers())
+	city := c.Query("city")
+	if city != "" {
+		c.JSON(http.StatusOK, service.GetDriversByCity(city))
+	} else {
+		c.JSON(http.StatusOK, service.GetAllDrivers())
+	}
 }
