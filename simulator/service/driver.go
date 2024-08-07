@@ -47,6 +47,8 @@ func GenerateDriver(city string) models.Driver {
 		UserID:    driver.ID,
 		Latitude:  lat,
 		Longitude: long,
+		City:      city,
+		Timestamp: time.Now(),
 	}
 	return driver
 }

@@ -50,6 +50,8 @@ func GenerateRider(city string) models.Rider {
 		UserID:    rider.ID,
 		Latitude:  lat,
 		Longitude: long,
+		City:      city,
+		Timestamp: time.Now(),
 	}
 	return rider
 }

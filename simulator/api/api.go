@@ -1,9 +1,7 @@
 package api
 
 import (
-	"net/http"
 	"simulator/config"
-	"simulator/service"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -27,16 +25,4 @@ func RegisterRoutes(r *gin.Engine) {
 	r.GET("/trips", GetAllTrips)
 	r.GET("/riders", GetAllRiders)
 	r.GET("/drivers", GetAllDrivers)
-}
-
-func GetAllTrips(c *gin.Context) {
-	c.JSON(http.StatusOK, service.GetAllTrips())
-}
-
-func GetAllRiders(c *gin.Context) {
-	c.JSON(http.StatusOK, service.GetAllRiders())
-}
-
-func GetAllDrivers(c *gin.Context) {
-	c.JSON(http.StatusOK, service.GetAllDrivers())
 }
