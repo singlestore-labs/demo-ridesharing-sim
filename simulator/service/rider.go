@@ -10,13 +10,15 @@ import (
 
 func StartRiderLoop(userID string, city string) {
 	for {
+		UpdateStatusForRider(userID, "idle")
 		initLat, initLong := GenerateCoordinateInCity(city)
 		UpdateLocationForRider(userID, models.Location{
 			Latitude:  initLat,
 			Longitude: initLong,
 		})
-		UpdateStatusForRider(userID, "idle")
-		time.Sleep(time.Duration(config.Faker.IntBetween(500, 20000)) * time.Millisecond)
+		sleepTime := time.Duration(config.Faker.IntBetween(500, 20000)) * time.Millisecond
+		fmt.Printf("Rider %s is idle for %s\n", userID, sleepTime)
+		time.Sleep(sleepTime)
 		tripID := RequestRide(userID, city)
 		UpdateStatusForRider(userID, "requested")
 		fmt.Printf("Rider %s requested ride %s\n", userID, tripID)
@@ -68,6 +70,16 @@ func GetAllRiders() []models.Rider {
 	riders := make([]models.Rider, 0)
 	for _, rider := range database.Local.Riders.Items() {
 		riders = append(riders, rider)
+	}
+	return riders
+}
+
+func GetRidersByStatus(status string) []models.Rider {
+	riders := make([]models.Rider, 0)
+	for _, rider := range database.Local.Riders.Items() {
+		if rider.Status == status {
+			riders = append(riders, rider)
+		}
 	}
 	return riders
 }

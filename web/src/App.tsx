@@ -1,12 +1,13 @@
 import { useRef, useEffect, useState, useCallback } from "react";
 import mapboxgl from "mapbox-gl";
-import { MAPBOX_TOKEN, SINGLESTORE_PURPLE_500, SINGLESTORE_PURPLE_700 } from "@/consts/config";
+import { BACKEND_URL, EN_ROUTE_COLOR, MAPBOX_TOKEN, SINGLESTORE_PURPLE_500, SINGLESTORE_PURPLE_700, WAITING_FOR_PICKUP_COLOR } from "@/consts/config";
 import axios from "axios";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ModeToggle } from "@/components/mode-toggle";
 import { useTheme } from "@/components/theme-provider";
+import { RealtimeTrips } from "./components/realtime-trips";
 mapboxgl.accessToken = MAPBOX_TOKEN;
 
 function App() {
@@ -72,7 +73,7 @@ function App() {
 
   const fetchData = async (endpoint: string) => {
     try {
-      const response = await axios.get(`http://localhost:8080/${endpoint}`);
+      const response = await axios.get(`${BACKEND_URL}/${endpoint}`);
       return response.data;
     } catch (error) {
       console.error(`Error fetching ${endpoint}:`, error);
@@ -130,7 +131,7 @@ function App() {
     updateMapLayer(map.current, 'riders-requested', requestedRiders, SINGLESTORE_PURPLE_500);
 
     const waitingRiders = createGeoJSON(riders, 'riders', 'waiting');
-    updateMapLayer(map.current, 'riders-waiting', waitingRiders, '#bababa');
+    updateMapLayer(map.current, 'riders-waiting', waitingRiders, WAITING_FOR_PICKUP_COLOR);
   };
   
   const getDrivers = async () => {
@@ -142,11 +143,14 @@ function App() {
     updateMapLayer(map.current, 'drivers-available', availableDrivers, SINGLESTORE_PURPLE_700);
     
     const inProgressDrivers = createGeoJSON(drivers, 'drivers', 'in_progress');
-    updateMapLayer(map.current, 'drivers-in-progress', inProgressDrivers, '#5ed67e');
+    updateMapLayer(map.current, 'drivers-in-progress', inProgressDrivers, EN_ROUTE_COLOR);
   };
 
   return (
     <div className="h-screen w-screen relative">
+      <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
+        <RealtimeTrips refreshInterval={refreshInterval} />
+      </div>
       <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2">
         <Card className="p-2">
           <div className="flex items-center gap-2">

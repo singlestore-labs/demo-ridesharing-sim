@@ -1,7 +1,6 @@
 package main
 
 import (
-	"os"
 	"simulator/api"
 	"simulator/config"
 	"simulator/database"
@@ -54,10 +53,9 @@ func main() {
 
 	go func() {
 		for {
-			time.Sleep(5 * time.Minute)
+			time.Sleep(1 * time.Minute)
 			trips := service.GetTripsByStatus("completed")
 			exporter.ExportTripsToCSV(trips)
-			os.Exit(0)
 		}
 	}()
 

@@ -121,6 +121,16 @@ func GetClosestRequest(lat, long float64) models.Trip {
 	return closestTrip
 }
 
+func TryAcceptRide(tripID string, driverID string) bool {
+	database.Local.AcceptMutex.Lock()
+	defer database.Local.AcceptMutex.Unlock()
+	if GetTrip(tripID).Status == "requested" {
+		AcceptRide(tripID, driverID)
+		return true
+	}
+	return false
+}
+
 func AcceptRide(tripID string, driverID string) {
 	trip := GetTrip(tripID)
 	trip.DriverID = driverID

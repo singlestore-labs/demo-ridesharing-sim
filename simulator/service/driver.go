@@ -19,12 +19,18 @@ func StartDriverLoop(userID string, city string) {
 		time.Sleep(time.Duration(config.Faker.IntBetween(500, 2000)) * time.Millisecond)
 		driverLocation := GetLocationForDriver(userID)
 		request := GetClosestRequest(driverLocation.Latitude, driverLocation.Longitude)
-		for request.ID == "" {
-			// fmt.Printf("Driver %s waiting for request\n", userID)
-			time.Sleep(100 * time.Millisecond)
-			request = GetClosestRequest(driverLocation.Latitude, driverLocation.Longitude)
+		accepted := false
+		for !accepted {
+			for request.ID == "" {
+				// fmt.Printf("Driver %s waiting for request\n", userID)
+				time.Sleep(100 * time.Millisecond)
+				request = GetClosestRequest(driverLocation.Latitude, driverLocation.Longitude)
+			}
+			accepted = TryAcceptRide(request.ID, userID)
+			if !accepted {
+				request.ID = ""
+			}
 		}
-		AcceptRide(request.ID, userID)
 		UpdateStatusForDriver(userID, "in_progress")
 		fmt.Printf("Driver %s accepted request %s\n", userID, request.ID)
 		StartTripLoop(request.ID)
@@ -65,6 +71,16 @@ func GetAllDrivers() []models.Driver {
 	drivers := make([]models.Driver, 0)
 	for _, driver := range database.Local.Drivers.Items() {
 		drivers = append(drivers, driver)
+	}
+	return drivers
+}
+
+func GetDriversByStatus(status string) []models.Driver {
+	drivers := make([]models.Driver, 0)
+	for _, driver := range database.Local.Drivers.Items() {
+		if driver.Status == status {
+			drivers = append(drivers, driver)
+		}
 	}
 	return drivers
 }

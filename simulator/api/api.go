@@ -13,7 +13,7 @@ func StartServer() {
 	r := gin.New()
 	r.Use(
 		gin.Recovery(),
-		gin.LoggerWithWriter(gin.DefaultWriter, "/riders", "/drivers"),
+		// gin.Logger(),
 		cors.Default(),
 	)
 	RegisterRoutes(r)
@@ -23,6 +23,7 @@ func StartServer() {
 
 func RegisterRoutes(r *gin.Engine) {
 	r.GET("/trips", GetAllTrips)
+	r.GET("/trips/current", GetCurrentTripBreakdown)
 	r.GET("/riders", GetAllRiders)
 	r.GET("/drivers", GetAllDrivers)
 }

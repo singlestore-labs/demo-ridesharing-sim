@@ -2,6 +2,7 @@ package database
 
 import (
 	"simulator/models"
+	"sync"
 
 	cmap "github.com/orcaman/concurrent-map/v2"
 )
@@ -9,9 +10,10 @@ import (
 var Local *LocalStore
 
 type LocalStore struct {
-	Riders  cmap.ConcurrentMap[string, models.Rider]
-	Drivers cmap.ConcurrentMap[string, models.Driver]
-	Trips   cmap.ConcurrentMap[string, models.Trip]
+	Riders      cmap.ConcurrentMap[string, models.Rider]
+	Drivers     cmap.ConcurrentMap[string, models.Driver]
+	Trips       cmap.ConcurrentMap[string, models.Trip]
+	AcceptMutex sync.Mutex
 }
 
 func InitializeLocal() {
