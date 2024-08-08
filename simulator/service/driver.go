@@ -84,16 +84,6 @@ func GetAllDrivers() []models.Driver {
 	return drivers
 }
 
-func GetDriversByStatus(status string) []models.Driver {
-	drivers := make([]models.Driver, 0)
-	for _, driver := range database.Local.Drivers.Items() {
-		if driver.Status == status {
-			drivers = append(drivers, driver)
-		}
-	}
-	return drivers
-}
-
 func GetDriver(userID string) models.Driver {
 	driver, ok := database.Local.Drivers.Get(userID)
 	if !ok {

@@ -82,16 +82,6 @@ func GetAllRiders() []models.Rider {
 	return riders
 }
 
-func GetRidersByStatus(status string) []models.Rider {
-	riders := make([]models.Rider, 0)
-	for _, rider := range database.Local.Riders.Items() {
-		if rider.Status == status {
-			riders = append(riders, rider)
-		}
-	}
-	return riders
-}
-
 func GetRider(userID string) models.Rider {
 	rider, ok := database.Local.Riders.Get(userID)
 	if !ok {

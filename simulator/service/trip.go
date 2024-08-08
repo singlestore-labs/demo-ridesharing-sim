@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"math"
 	"simulator/config"
 	"simulator/database"
@@ -126,12 +125,6 @@ func GetAllTrips() []models.Trip {
 }
 
 func GetTripsByStatus(status string) []models.Trip {
-	startTime := time.Now()
-	defer func() {
-		executionTime := time.Since(startTime)
-		fmt.Printf("GetTripsByStatus execution time: %v\n", executionTime)
-	}()
-
 	trips := make([]models.Trip, 0)
 	for _, trip := range database.Local.Trips.Items() {
 		if trip.Status == status {
