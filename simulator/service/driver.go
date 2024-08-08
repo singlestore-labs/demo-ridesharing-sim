@@ -8,6 +8,10 @@ import (
 	"time"
 )
 
+// ================================
+//  SIMULATION FUNCTIONS
+// ================================
+
 func StartDriverLoop(userID string, city string) {
 	initLat, initLong := GenerateCoordinateInCity(city)
 	UpdateLocationForDriver(userID, models.Location{
@@ -16,7 +20,8 @@ func StartDriverLoop(userID string, city string) {
 	})
 	for {
 		UpdateStatusForDriver(userID, "available")
-		time.Sleep(time.Duration(config.Faker.IntBetween(500, 2000)) * time.Millisecond)
+		sleepTime := time.Duration(config.Faker.IntBetween(500, 2000)) * time.Millisecond
+		time.Sleep(sleepTime)
 		driverLocation := GetLocationForDriver(userID)
 		request := GetClosestRequest(driverLocation.Latitude, driverLocation.Longitude)
 		accepted := false
@@ -67,6 +72,10 @@ func GenerateDrivers(numDrivers int, city string) []models.Driver {
 	return drivers
 }
 
+// ================================
+//  LOCAL DATABASE FUNCTIONS
+// ================================
+
 func GetAllDrivers() []models.Driver {
 	drivers := make([]models.Driver, 0)
 	for _, driver := range database.Local.Drivers.Items() {
@@ -85,18 +94,11 @@ func GetDriversByStatus(status string) []models.Driver {
 	return drivers
 }
 
-func GetDriversByCity(city string) []models.Driver {
-	drivers := make([]models.Driver, 0)
-	for _, driver := range database.Local.Drivers.Items() {
-		if driver.Location.City == city {
-			drivers = append(drivers, driver)
-		}
-	}
-	return drivers
-}
-
 func GetDriver(userID string) models.Driver {
-	driver, _ := database.Local.Drivers.Get(userID)
+	driver, ok := database.Local.Drivers.Get(userID)
+	if !ok {
+		return models.Driver{}
+	}
 	return driver
 }
 
@@ -115,6 +117,8 @@ func UpdateLocationForDriver(userID string, location models.Location) {
 
 func UpdateStatusForDriver(userID string, status string) {
 	driver := GetDriver(userID)
-	driver.Status = status
-	database.Local.Drivers.Set(userID, driver)
+	if driver.ID != "" {
+		driver.Status = status
+		database.Local.Drivers.Set(userID, driver)
+	}
 }

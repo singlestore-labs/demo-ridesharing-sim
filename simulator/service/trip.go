@@ -1,90 +1,17 @@
 package service
 
 import (
+	"fmt"
 	"math"
 	"simulator/config"
 	"simulator/database"
 	"simulator/models"
-	"slices"
 	"time"
 )
 
-func GetAllTrips() []models.Trip {
-	trips := make([]models.Trip, 0)
-	for _, trip := range database.Local.Trips.Items() {
-		trips = append(trips, trip)
-	}
-	return trips
-}
-
-func GetTripsByCityAndStatus(city string, status string) []models.Trip {
-	trips := make([]models.Trip, 0)
-	for _, trip := range GetAllTrips() {
-		if trip.City == city && trip.Status == status {
-			trips = append(trips, trip)
-		}
-	}
-	return trips
-}
-
-func GetTripsByStatus(status string) []models.Trip {
-	trips := make([]models.Trip, 0)
-	for _, trip := range GetAllTrips() {
-		if trip.Status == status {
-			trips = append(trips, trip)
-		}
-	}
-	return trips
-}
-
-func GetTripsByCity(city string) []models.Trip {
-	trips := make([]models.Trip, 0)
-	for _, trip := range GetAllTrips() {
-		if trip.City == city {
-			trips = append(trips, trip)
-		}
-	}
-	return trips
-}
-
-func GetTrip(tripID string) models.Trip {
-	trip, _ := database.Local.Trips.Get(tripID)
-	return trip
-}
-
-func FindTripsForRider(userID string) []models.Trip {
-	trips := make([]models.Trip, 0)
-	for _, trip := range GetAllTrips() {
-		if trip.RiderID == userID {
-			trips = append(trips, trip)
-		}
-	}
-	return trips
-}
-
-func FindTripsForDriver(userID string) []models.Trip {
-	trips := make([]models.Trip, 0)
-	for _, trip := range GetAllTrips() {
-		if trip.DriverID == userID {
-			trips = append(trips, trip)
-		}
-	}
-	return trips
-}
-
-func GetLastTrip(trips []models.Trip) models.Trip {
-	if len(trips) == 0 {
-		return models.Trip{}
-	}
-	slices.SortFunc(trips, func(a, b models.Trip) int {
-		return a.RequestTime.Compare(b.RequestTime)
-	})
-	return trips[len(trips)-1]
-}
-
-func UpsertTrip(trip models.Trip) {
-	database.Local.Trips.Set(trip.ID, trip)
-}
+// ================================
+//  SIMULATION FUNCTIONS
+// ================================
 
 func RequestRide(userID string, city string) string {
 	riderLocation := GetLocationForRider(userID)
@@ -109,13 +36,11 @@ func RequestRide(userID string, city string) string {
 func GetClosestRequest(lat, long float64) models.Trip {
 	closestDistance := math.MaxFloat64
 	var closestTrip models.Trip
-	for _, trip := range GetAllTrips() {
-		if trip.Status == "requested" {
-			distance := GetDistanceBetweenCoordinates(lat, long, trip.PickupLat, trip.PickupLong)
-			if distance < closestDistance {
-				closestDistance = distance
-				closestTrip = trip
-			}
+	for _, trip := range GetTripsByStatus("requested") {
+		distance := GetDistanceBetweenCoordinates(lat, long, trip.PickupLat, trip.PickupLong)
+		if distance < closestDistance {
+			closestDistance = distance
+			closestTrip = trip
 		}
 	}
 	return closestTrip
@@ -186,4 +111,44 @@ func StartTripLoop(tripID string) {
 	trip.Status = "completed"
 	trip.DropoffTime = time.Now()
 	UpsertTrip(trip)
+}
+
+// ================================
+//  LOCAL DATABASE FUNCTIONS
+// ================================
+
+func GetAllTrips() []models.Trip {
+	trips := make([]models.Trip, 0)
+	for _, trip := range database.Local.Trips.Items() {
+		trips = append(trips, trip)
+	}
+	return trips
+}
+
+func GetTripsByStatus(status string) []models.Trip {
+	startTime := time.Now()
+	defer func() {
+		executionTime := time.Since(startTime)
+		fmt.Printf("GetTripsByStatus execution time: %v\n", executionTime)
+	}()
+
+	trips := make([]models.Trip, 0)
+	for _, trip := range database.Local.Trips.Items() {
+		if trip.Status == status {
+			trips = append(trips, trip)
+		}
+	}
+	return trips
+}
+
+func GetTrip(tripID string) models.Trip {
+	trip, ok := database.Local.Trips.Get(tripID)
+	if !ok {
+		return models.Trip{}
+	}
+	return trip
+}
+
+func UpsertTrip(trip models.Trip) {
+	database.Local.Trips.Set(trip.ID, trip)
 }

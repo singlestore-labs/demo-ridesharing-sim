@@ -8,6 +8,10 @@ import (
 	"time"
 )
 
+// ================================
+//  SIMULATION FUNCTIONS
+// ================================
+
 func StartRiderLoop(userID string, city string) {
 	for {
 		UpdateStatusForRider(userID, "idle")
@@ -66,6 +70,10 @@ func GenerateRiders(numRiders int, city string) []models.Rider {
 	return riders
 }
 
+// ================================
+//  LOCAL DATABASE FUNCTIONS
+// ================================
+
 func GetAllRiders() []models.Rider {
 	riders := make([]models.Rider, 0)
 	for _, rider := range database.Local.Riders.Items() {
@@ -84,18 +92,11 @@ func GetRidersByStatus(status string) []models.Rider {
 	return riders
 }
 
-func GetRidersByCity(city string) []models.Rider {
-	riders := make([]models.Rider, 0)
-	for _, rider := range database.Local.Riders.Items() {
-		if rider.Location.City == city {
-			riders = append(riders, rider)
-		}
-	}
-	return riders
-}
-
 func GetRider(userID string) models.Rider {
-	rider, _ := database.Local.Riders.Get(userID)
+	rider, ok := database.Local.Riders.Get(userID)
+	if !ok {
+		return models.Rider{}
+	}
 	return rider
 }
 
@@ -114,6 +115,8 @@ func UpdateLocationForRider(userID string, location models.Location) {
 
 func UpdateStatusForRider(userID string, status string) {
 	rider := GetRider(userID)
-	rider.Status = status
-	database.Local.Riders.Set(userID, rider)
+	if rider.ID != "" {
+		rider.Status = status
+		database.Local.Riders.Set(userID, rider)
+	}
 }
