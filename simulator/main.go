@@ -11,6 +11,7 @@ import (
 func main() {
 	service.LoadGeoData()
 	database.InitializeLocal()
+	exporter.InitializeKafkaClient()
 
 	// riders, err := exporter.ImportRidersFromCSV("data/riders.csv")
 	// if err != nil {

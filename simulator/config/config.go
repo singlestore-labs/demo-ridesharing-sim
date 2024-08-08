@@ -21,6 +21,14 @@ var validCities = []string{"San Francisco"}
 
 var Faker = faker.New()
 
+var Kafka = struct {
+	Broker         string
+	SchemaRegistry string
+}{
+	Broker:         os.Getenv("KAFKA_BROKER"),
+	SchemaRegistry: os.Getenv("KAFKA_SCHEMA_REGISTRY"),
+}
+
 func Verify() {
 	if Port == "" {
 		Port = "8001"

@@ -9,6 +9,8 @@
 ```
 openssl genrsa 4096 | openssl pkcs8 -topk8 -inform PEM -out kafka_key.p8 -nocrypt
 openssl rsa -in kafka_key.p8 -pubout -out kafka_key.pub
+cat kafka_key.pub | grep -v KEY- | tr -d '\012'
+3. Copy the output and replace the placeholder public key in `snowflake.sql`
 ```
 
 ## Resources
