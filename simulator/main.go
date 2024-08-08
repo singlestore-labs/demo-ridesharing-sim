@@ -1,7 +1,6 @@
 package main
 
 import (
-	"simulator/api"
 	"simulator/config"
 	"simulator/database"
 	"simulator/exporter"
@@ -11,7 +10,7 @@ import (
 
 func main() {
 	service.LoadGeoData()
-	database.Initialize()
+	database.InitializeLocal()
 
 	// riders, err := exporter.ImportRidersFromCSV("data/riders.csv")
 	// if err != nil {
@@ -51,13 +50,11 @@ func main() {
 		}
 	}()
 
-	go func() {
-		for {
-			time.Sleep(1 * time.Minute)
-			trips := service.GetTripsByStatus("completed")
-			exporter.ExportTripsToCSV(trips)
-		}
-	}()
-
-	api.StartServer()
+	// Dump completed trips to CSV every minute
+	// Also acts as a way to keep the main thread alive
+	for {
+		time.Sleep(1 * time.Minute)
+		trips := service.GetTripsByStatus("completed")
+		exporter.ExportTripsToCSV(trips)
+	}
 }
