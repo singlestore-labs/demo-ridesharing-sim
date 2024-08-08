@@ -76,7 +76,6 @@ func KafkaProduceTrip(trip models.Trip) {
 			if err != nil {
 				fmt.Printf("unable to produce: %v", err)
 			}
-			fmt.Printf("Produced simple record, value bytes: %x\n", r.Value)
 		},
 	)
 }

@@ -4,6 +4,7 @@ import (
 	"math"
 	"simulator/config"
 	"simulator/database"
+	"simulator/exporter"
 	"simulator/models"
 	"time"
 )
@@ -144,4 +145,5 @@ func GetTrip(tripID string) models.Trip {
 
 func UpsertTrip(trip models.Trip) {
 	database.Local.Trips.Set(trip.ID, trip)
+	go exporter.KafkaProduceTrip(trip)
 }
