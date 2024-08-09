@@ -9,6 +9,7 @@ import (
 )
 
 func main() {
+	config.Verify()
 	service.LoadGeoData()
 	database.InitializeLocal()
 	exporter.InitializeKafkaClient()
@@ -35,6 +36,15 @@ func main() {
 	riders := service.GenerateRiders(config.NumRiders, "San Francisco")
 	drivers := service.GenerateDrivers(config.NumDrivers, "San Francisco")
 
+	// exporter.KafkaProduceTrip(models.Trip{
+	// 	ID:       "ajldas-321jkdsa-sdajkml",
+	// 	RiderID:  "uuidsa-1jpdas0-321",
+	// 	DriverID: "dasdsa-3412d-12sads",
+	// 	Status:   "completed",
+	// 	Distance: 10.2,
+	// 	Fare:     12,
+	// })
+
 	go func() {
 		for _, rider := range riders {
 			database.Local.Riders.Set(rider.ID, rider)
@@ -50,6 +60,8 @@ func main() {
 			time.Sleep(time.Duration(config.Faker.IntBetween(1, 100)) * time.Millisecond)
 		}
 	}()
+
+	go exporter.KafkaDebugTripConsumer()
 
 	// Dump completed trips to CSV every minute
 	// Also acts as a way to keep the main thread alive

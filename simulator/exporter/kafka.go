@@ -6,6 +6,7 @@ import (
 	"log"
 	"simulator/config"
 	"simulator/models"
+	"time"
 
 	"github.com/twmb/franz-go/pkg/kerr"
 	"github.com/twmb/franz-go/pkg/kgo"
@@ -69,6 +70,7 @@ func KafkaProduceTrip(trip models.Trip) {
 	KafkaClient.Produce(
 		context.Background(),
 		&kgo.Record{
+			Key:   []byte(trip.ID),
 			Topic: "ridesharing-sim.trips",
 			Value: Serde.MustEncode(trip),
 		},
@@ -78,4 +80,20 @@ func KafkaProduceTrip(trip models.Trip) {
 			}
 		},
 	)
+}
+
+func KafkaDebugTripConsumer() {
+	KafkaClient.AddConsumeTopics("ridesharing-sim.trips")
+	for {
+		fs := KafkaClient.PollFetches(context.Background())
+		fs.EachRecord(func(r *kgo.Record) {
+			var trip models.Trip
+			err := Serde.Decode(r.Value, &trip)
+			if err != nil {
+				fmt.Printf("unable to decode: %v", err)
+			}
+			fmt.Printf("received: %v\n", trip)
+		})
+		time.Sleep(1 * time.Second)
+	}
 }
