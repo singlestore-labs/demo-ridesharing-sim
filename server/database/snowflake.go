@@ -8,7 +8,7 @@ import (
 	sf "github.com/snowflakedb/gosnowflake"
 )
 
-var db *sql.DB
+var SnowflakeDB *sql.DB
 
 func connectSnowflake() {
 	cfg := &sf.Config{
@@ -24,12 +24,12 @@ func connectSnowflake() {
 		log.Fatalf("Failed to create DSN: %v", err)
 	}
 	// Connect to Snowflake
-	db, err = sql.Open("snowflake", dsn)
+	SnowflakeDB, err = sql.Open("snowflake", dsn)
 	if err != nil {
 		log.Fatalf("Failed to connect to Snowflake: %v", err)
 	}
 	// Test the connection
-	err = db.Ping()
+	err = SnowflakeDB.Ping()
 	if err != nil {
 		log.Fatalf("Failed to ping Snowflake: %v", err)
 	}
