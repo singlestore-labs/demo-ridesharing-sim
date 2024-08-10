@@ -3,7 +3,6 @@ package exporter
 import (
 	"context"
 	"crypto/tls"
-	"fmt"
 	"log"
 	"net"
 	"simulator/config"
@@ -91,7 +90,7 @@ func CreateTopic(topic string) {
 		log.Fatalf("kafka topic creation failure: %v", err)
 		return
 	}
-	fmt.Printf("kafka topic %s created successfully!\n", t.Topic)
+	log.Printf("kafka topic %s created successfully!\n", t.Topic)
 }
 
 func KafkaProduceTrip(trip models.Trip) {
@@ -109,7 +108,7 @@ func KafkaProduceTrip(trip models.Trip) {
 		},
 		func(r *kgo.Record, err error) {
 			if err != nil {
-				fmt.Printf("unable to produce: %v", err)
+				log.Printf("unable to produce: %v", err)
 			}
 		},
 	)
@@ -129,7 +128,7 @@ func KafkaProduceRider(rider models.Rider) {
 		},
 		func(r *kgo.Record, err error) {
 			if err != nil {
-				fmt.Printf("unable to produce: %v", err)
+				log.Printf("unable to produce: %v", err)
 			}
 		},
 	)
@@ -149,7 +148,7 @@ func KafkaProduceDriver(driver models.Driver) {
 		},
 		func(r *kgo.Record, err error) {
 			if err != nil {
-				fmt.Printf("unable to produce: %v", err)
+				log.Printf("unable to produce: %v", err)
 			}
 		},
 	)
@@ -164,9 +163,9 @@ func KafkaDebugTripConsumer() {
 			// err := Serde.Decode(r.Value, &trip)
 			err := json.Unmarshal(r.Value, &trip)
 			if err != nil {
-				fmt.Printf("unable to decode: %v", err)
+				log.Printf("unable to decode: %v", err)
 			}
-			fmt.Printf("received: %v\n", trip)
+			log.Printf("received: %v\n", trip)
 		})
 		time.Sleep(1 * time.Second)
 	}

@@ -44,7 +44,7 @@ func CreateAvroSchemas() {
 	if err != nil {
 		log.Fatalf("unable to create schema: %v", err)
 	}
-	fmt.Printf("created or reusing schema subject %q version %d id %d\n", ss.Subject, ss.Version, ss.ID)
+	log.Printf("created or reusing schema subject %q version %d id %d\n", ss.Subject, ss.Version, ss.ID)
 
 	Serde.Register(
 		ss.ID,

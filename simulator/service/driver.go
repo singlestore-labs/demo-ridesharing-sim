@@ -1,7 +1,7 @@
 package service
 
 import (
-	"fmt"
+	"log"
 	"simulator/config"
 	"simulator/database"
 	"simulator/exporter"
@@ -28,7 +28,7 @@ func StartDriverLoop(userID string, city string) {
 		accepted := false
 		for !accepted {
 			for request.ID == "" {
-				// fmt.Printf("Driver %s waiting for request\n", userID)
+				// log.Printf("Driver %s waiting for request\n", userID)
 				time.Sleep(100 * time.Millisecond)
 				request = GetClosestRequest(driverLocation.Latitude, driverLocation.Longitude)
 			}
@@ -38,9 +38,9 @@ func StartDriverLoop(userID string, city string) {
 			}
 		}
 		UpdateStatusForDriver(userID, "in_progress")
-		fmt.Printf("Driver %s accepted request %s\n", userID, request.ID)
+		log.Printf("Driver %s accepted request %s\n", userID, request.ID)
 		StartTripLoop(request.ID)
-		fmt.Printf("Driver %s completed trip %s\n\n", userID, request.ID)
+		log.Printf("Driver %s completed trip %s\n\n", userID, request.ID)
 	}
 }
 
