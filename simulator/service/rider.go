@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"simulator/config"
 	"simulator/database"
+	"simulator/exporter"
 	"simulator/models"
 	"time"
 )
@@ -101,16 +102,22 @@ func GetLocationForRider(userID string) models.Location {
 
 func UpdateLocationForRider(userID string, location models.Location) {
 	rider := GetRider(userID)
+	if rider.ID == "" {
+		return
+	}
 	rider.Location = location
 	rider.Location.UserID = userID
 	rider.Location.Timestamp = time.Now()
 	database.Local.Riders.Set(userID, rider)
+	exporter.KafkaProduceRider(rider)
 }
 
 func UpdateStatusForRider(userID string, status string) {
 	rider := GetRider(userID)
-	if rider.ID != "" {
-		rider.Status = status
-		database.Local.Riders.Set(userID, rider)
+	if rider.ID == "" {
+		return
 	}
+	rider.Status = status
+	database.Local.Riders.Set(userID, rider)
+	exporter.KafkaProduceRider(rider)
 }

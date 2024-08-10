@@ -67,7 +67,7 @@ func InitializeKafkaClient() {
 	}
 	SchemaRegistryClient = rcl
 
-	for _, topic := range []string{"ridesharing-sim-trips"} {
+	for _, topic := range []string{"ridesharing-sim-trips", "ridesharing-sim-riders", "ridesharing-sim-drivers"} {
 		CreateTopic(topic)
 	}
 
@@ -106,6 +106,46 @@ func KafkaProduceTrip(trip models.Trip) {
 			Topic: "ridesharing-sim-trips",
 			// Value: Serde.MustEncode(trip),
 			Value: jsonTrip,
+		},
+		func(r *kgo.Record, err error) {
+			if err != nil {
+				fmt.Printf("unable to produce: %v", err)
+			}
+		},
+	)
+}
+
+func KafkaProduceRider(rider models.Rider) {
+	jsonRider, err := json.Marshal(rider)
+	if err != nil {
+		log.Fatalf("unable to marshal rider: %v", err)
+	}
+	KafkaClient.Produce(
+		context.Background(),
+		&kgo.Record{
+			Key:   []byte(rider.ID),
+			Topic: "ridesharing-sim-riders",
+			Value: jsonRider,
+		},
+		func(r *kgo.Record, err error) {
+			if err != nil {
+				fmt.Printf("unable to produce: %v", err)
+			}
+		},
+	)
+}
+
+func KafkaProduceDriver(driver models.Driver) {
+	jsonDriver, err := json.Marshal(driver)
+	if err != nil {
+		log.Fatalf("unable to marshal driver: %v", err)
+	}
+	KafkaClient.Produce(
+		context.Background(),
+		&kgo.Record{
+			Key:   []byte(driver.ID),
+			Topic: "ridesharing-sim-drivers",
+			Value: jsonDriver,
 		},
 		func(r *kgo.Record, err error) {
 			if err != nil {

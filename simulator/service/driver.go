@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"simulator/config"
 	"simulator/database"
+	"simulator/exporter"
 	"simulator/models"
 	"time"
 )
@@ -99,16 +100,22 @@ func GetLocationForDriver(userID string) models.Location {
 
 func UpdateLocationForDriver(userID string, location models.Location) {
 	driver := GetDriver(userID)
+	if driver.ID == "" {
+		return
+	}
 	driver.Location = location
 	driver.Location.UserID = userID
 	driver.Location.Timestamp = time.Now()
 	database.Local.Drivers.Set(userID, driver)
+	exporter.KafkaProduceDriver(driver)
 }
 
 func UpdateStatusForDriver(userID string, status string) {
 	driver := GetDriver(userID)
-	if driver.ID != "" {
-		driver.Status = status
-		database.Local.Drivers.Set(userID, driver)
+	if driver.ID == "" {
+		return
 	}
+	driver.Status = status
+	database.Local.Drivers.Set(userID, driver)
+	exporter.KafkaProduceDriver(driver)
 }
