@@ -1,7 +1,13 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"server/config"
+	"server/database"
+)
 
 func main() {
+	config.Verify()
+	database.Initialize()
 	fmt.Println("Hello, World!")
 }

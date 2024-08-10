@@ -8,8 +8,6 @@ import (
 	"github.com/jaswdr/faker/v2"
 )
 
-var Port = "8080"
-
 var numRiders = os.Getenv("NUM_RIDERS")
 var numDrivers = os.Getenv("NUM_DRIVERS")
 
@@ -34,9 +32,6 @@ var Kafka = struct {
 }
 
 func Verify() {
-	if Port == "" {
-		Port = "8001"
-	}
 	if num, err := strconv.ParseInt(numRiders, 10, 64); err == nil {
 		NumRiders = int(num)
 	}
