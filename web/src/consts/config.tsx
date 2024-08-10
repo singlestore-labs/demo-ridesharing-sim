@@ -1,5 +1,6 @@
 export const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
-export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
+export const BACKEND_URL =
+  import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 
 export const SINGLESTORE_PURPLE_500 = "#D199FF";
 export const SINGLESTORE_PURPLE_700 = "#820DDF";
