@@ -50,7 +50,7 @@ export function RealtimeTrips({ refreshInterval }: RealtimeTripsProps) {
   }, [refreshData]);
 
   const getTripStats = async () => {
-    const response = await axios.get(`${BACKEND_URL}/trips/current`);
+    const response = await axios.get(`${BACKEND_URL}/trips/current/status`);
     setTripStats(response.data);
   };
 

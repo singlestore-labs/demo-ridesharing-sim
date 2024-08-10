@@ -22,5 +22,7 @@ func SetupRouter() *gin.Engine {
 }
 
 func InitializeRoutes(router *gin.Engine) {
+	router.GET("/trips/current/status", GetCurrentTripStatus)
 	router.GET("/riders", GetRiders)
+	router.GET("/drivers", GetDrivers)
 }
