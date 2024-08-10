@@ -5,7 +5,7 @@ URL="https://$SNOWFLAKE_ACCOUNT.snowflakecomputing.com"
 NAME="ridesharing-sim-trips-snowflake"
 DB_NAME="RIDESHARE_DEMO"
 ROLE_NAME="RIDESHARE_INGEST"
-TABLE_NAME="TRIPS"
+TABLE_NAME="TRIPS_STAGING"
 
 curl -i -X PUT -H "Content-Type:application/json" \
     "http://localhost:8083/connectors/$NAME/config" \
