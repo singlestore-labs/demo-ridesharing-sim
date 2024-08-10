@@ -138,3 +138,64 @@ TEST PIPELINE rideshare_kafka_riders LIMIT 1;
 
 -- Start the riders pipeline
 START PIPELINE rideshare_kafka_riders;
+
+-- Create the drivers table
+DROP TABLE IF EXISTS drivers;
+CREATE TABLE drivers (
+    id VARCHAR(255) NOT NULL,
+    first_name VARCHAR(255),
+    last_name VARCHAR(255),
+    email VARCHAR(255),
+    phone_number VARCHAR(255),
+    date_of_birth DATETIME(6),
+    created_at DATETIME(6),
+    location_city VARCHAR(255),
+    location_lat DOUBLE,
+    location_long DOUBLE,
+    status VARCHAR(20),
+    PRIMARY KEY (id)
+);
+
+-- Create the drivers pipeline
+CREATE OR REPLACE PIPELINE rideshare_kafka_drivers AS
+    LOAD DATA KAFKA 'cqrik6h4mu94dmoo2370.any.us-east-1.mpx.prd.cloud.redpanda.com:9092/ridesharing-sim-drivers'
+    CONFIG '{"sasl.username": "<username>",
+         "sasl.mechanism": "SCRAM-SHA-256",
+         "security.protocol": "SASL_SSL",
+         "ssl.ca.location": "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem"}'
+    CREDENTIALS '{"sasl.password": "<password>"}'
+    DISABLE OUT_OF_ORDER OPTIMIZATION
+    INTO TABLE drivers
+    FORMAT JSON
+    (
+        id <- id,
+        first_name <- first_name,
+        last_name <- last_name,
+        email <- email,
+        phone_number <- phone_number,
+        @date_of_birth <- date_of_birth,
+        @created_at <- created_at,
+        location_city <- location::city,
+        location_lat <- location::latitude,
+        location_long <- location::longitude,
+        status <- status
+    )
+    SET date_of_birth = STR_TO_DATE(@date_of_birth, '%Y-%m-%dT%H:%i:%s.%f'),
+        created_at = STR_TO_DATE(@created_at, '%Y-%m-%dT%H:%i:%s.%f')
+    ON DUPLICATE KEY UPDATE
+        first_name = VALUES(first_name),
+        last_name = VALUES(last_name),
+        email = VALUES(email),
+        phone_number = VALUES(phone_number),
+        date_of_birth = VALUES(date_of_birth),
+        created_at = VALUES(created_at),
+        location_city = VALUES(location_city),
+        location_lat = VALUES(location_lat),
+        location_long = VALUES(location_long),
+        status = VALUES(status)
+
+-- Test the drivers pipeline
+TEST PIPELINE rideshare_kafka_drivers LIMIT 1;
+
+-- Start the drivers pipeline
+START PIPELINE rideshare_kafka_drivers;
