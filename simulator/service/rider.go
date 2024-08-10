@@ -105,8 +105,9 @@ func UpdateLocationForRider(userID string, location models.Location) {
 	if rider.ID == "" {
 		return
 	}
-	rider.Location = location
 	rider.Location.UserID = userID
+	rider.Location.Latitude = location.Latitude
+	rider.Location.Longitude = location.Longitude
 	rider.Location.Timestamp = time.Now()
 	database.Local.Riders.Set(userID, rider)
 	exporter.KafkaProduceRider(rider)

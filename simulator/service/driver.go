@@ -103,8 +103,9 @@ func UpdateLocationForDriver(userID string, location models.Location) {
 	if driver.ID == "" {
 		return
 	}
-	driver.Location = location
 	driver.Location.UserID = userID
+	driver.Location.Latitude = location.Latitude
+	driver.Location.Longitude = location.Longitude
 	driver.Location.Timestamp = time.Now()
 	database.Local.Drivers.Set(userID, driver)
 	exporter.KafkaProduceDriver(driver)
