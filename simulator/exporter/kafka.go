@@ -14,7 +14,7 @@ import (
 	"github.com/twmb/franz-go/pkg/kerr"
 	"github.com/twmb/franz-go/pkg/kgo"
 	"github.com/twmb/franz-go/pkg/kmsg"
-	"github.com/twmb/franz-go/pkg/sasl/plain"
+	"github.com/twmb/franz-go/pkg/sasl/scram"
 	"github.com/twmb/franz-go/pkg/sr"
 )
 
@@ -34,10 +34,14 @@ func InitializeKafkaClient() {
 		opts := []kgo.Opt{
 			kgo.SeedBrokers(seeds...),
 			kgo.ConsumerGroup("simulator"),
-			kgo.SASL(plain.Auth{
+			// kgo.SASL(plain.Auth{
+			// 	User: config.Kafka.SASLUsername,
+			// 	Pass: config.Kafka.SASLPassword,
+			// }.AsMechanism()),
+			kgo.SASL(scram.Auth{
 				User: config.Kafka.SASLUsername,
 				Pass: config.Kafka.SASLPassword,
-			}.AsMechanism()),
+			}.AsSha256Mechanism()),
 			kgo.Dialer(tlsDialer.DialContext),
 		}
 		cl, err := kgo.NewClient(opts...)
@@ -75,7 +79,7 @@ func CreateTopic(topic string) {
 	t := kmsg.NewCreateTopicsRequestTopic()
 	t.Topic = topic
 	t.NumPartitions = 1
-	t.ReplicationFactor = 1
+	t.ReplicationFactor = 3
 	req.Topics = append(req.Topics, t)
 
 	res, err := req.RequestWith(context.Background(), KafkaClient)
