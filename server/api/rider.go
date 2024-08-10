@@ -7,5 +7,5 @@ import (
 )
 
 func GetRiders(c *gin.Context) {
-	c.JSON(200, service.GetAllRiders)
+	c.JSON(200, service.GetAllRiders(c.Query("db")))
 }

@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import axios from "axios";
-import { BACKEND_URL, EN_ROUTE_COLOR, SINGLESTORE_PURPLE_500, SINGLESTORE_PURPLE_700, WAITING_FOR_PICKUP_COLOR } from "@/consts/config";
+import {
+  BACKEND_URL,
+  EN_ROUTE_COLOR,
+  SINGLESTORE_PURPLE_500,
+  SINGLESTORE_PURPLE_700,
+  WAITING_FOR_PICKUP_COLOR,
+} from "@/consts/config";
 import { toast } from "sonner";
 
 interface TripStats {
@@ -46,27 +52,44 @@ export function RealtimeTrips({ refreshInterval }: RealtimeTripsProps) {
   const getTripStats = async () => {
     const response = await axios.get(`${BACKEND_URL}/trips/current`);
     setTripStats(response.data);
-  }
+  };
 
   if (!tripStats) return <div>...</div>;
 
   return (
     <div className="flex flex-wrap gap-4">
-      <Card className="p-4 flex flex-col items-center justify-center">
+      <Card className="flex flex-col items-center justify-center p-4">
         <h1 className="text-5xl font-bold">{tripStats.drivers_available}</h1>
-        <p className="mt-2 font-medium" style={{ color: SINGLESTORE_PURPLE_700 }}>Drivers Available</p>
+        <p
+          className="mt-2 font-medium"
+          style={{ color: SINGLESTORE_PURPLE_700 }}
+        >
+          Drivers Available
+        </p>
       </Card>
-      <Card className="p-4 flex flex-col items-center justify-center">
+      <Card className="flex flex-col items-center justify-center p-4">
         <h1 className="text-5xl font-bold">{tripStats.trips_requested}</h1>
-        <p className="mt-2 font-medium" style={{ color: SINGLESTORE_PURPLE_500 }}>Rides Requested</p>
+        <p
+          className="mt-2 font-medium"
+          style={{ color: SINGLESTORE_PURPLE_500 }}
+        >
+          Rides Requested
+        </p>
       </Card>
-      <Card className="p-4 flex flex-col items-center justify-center">
+      <Card className="flex flex-col items-center justify-center p-4">
         <h1 className="text-5xl font-bold">{tripStats.trips_accepted}</h1>
-        <p className="mt-2 font-medium" style={{ color: WAITING_FOR_PICKUP_COLOR }}>Waiting for Pickup</p>
+        <p
+          className="mt-2 font-medium"
+          style={{ color: WAITING_FOR_PICKUP_COLOR }}
+        >
+          Waiting for Pickup
+        </p>
       </Card>
-      <Card className="p-4 flex flex-col items-center justify-center">
+      <Card className="flex flex-col items-center justify-center p-4">
         <h1 className="text-5xl font-bold">{tripStats.drivers_in_progress}</h1>
-        <p className="mt-2 font-medium" style={{ color: EN_ROUTE_COLOR }}>In Progress</p>
+        <p className="mt-2 font-medium" style={{ color: EN_ROUTE_COLOR }}>
+          In Progress
+        </p>
       </Card>
     </div>
   );

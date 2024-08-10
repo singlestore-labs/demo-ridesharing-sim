@@ -5,9 +5,9 @@ import (
 	"server/model"
 )
 
-func GetAllRiders(store string) []model.Rider {
+func GetAllRiders(db string) []model.Rider {
 	var riders []model.Rider
-	if store == "snowflake" {
+	if db == "snowflake" {
 		rows, err := database.SnowflakeDB.Query("SELECT * FROM riders")
 		if err != nil {
 			return nil

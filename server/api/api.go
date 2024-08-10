@@ -17,6 +17,7 @@ func SetupRouter() *gin.Engine {
 		MaxAge:           12 * time.Hour,
 		AllowCredentials: true,
 	}))
+	InitializeRoutes(r)
 	return r
 }
 
