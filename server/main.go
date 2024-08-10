@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"server/api"
 	"server/config"
 	"server/database"
 )
@@ -9,5 +9,7 @@ import (
 func main() {
 	config.Verify()
 	database.Initialize()
-	fmt.Println("Hello, World!")
+
+	r := api.SetupRouter()
+	r.Run(":" + config.Port)
 }

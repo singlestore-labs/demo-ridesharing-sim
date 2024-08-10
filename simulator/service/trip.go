@@ -5,7 +5,7 @@ import (
 	"simulator/config"
 	"simulator/database"
 	"simulator/exporter"
-	"simulator/models"
+	"simulator/model"
 	"time"
 )
 
@@ -20,7 +20,7 @@ func RequestRide(userID string, city string) string {
 	if destLat == 0 && destLong == 0 {
 		return ""
 	}
-	trip := models.Trip{
+	trip := model.Trip{
 		ID:          config.Faker.UUID().V4(),
 		RiderID:     userID,
 		Status:      "requested",
@@ -36,9 +36,9 @@ func RequestRide(userID string, city string) string {
 	return trip.ID
 }
 
-func GetClosestRequest(lat, long float64) models.Trip {
+func GetClosestRequest(lat, long float64) model.Trip {
 	closestDistance := math.MaxFloat64
-	var closestTrip models.Trip
+	var closestTrip model.Trip
 	for _, trip := range GetTripsByStatus("requested") {
 		distance := GetDistanceBetweenCoordinates(lat, long, trip.PickupLat, trip.PickupLong)
 		if distance < closestDistance {
@@ -74,12 +74,12 @@ func StartTripLoop(tripID string) {
 	path := GenerateMiddleCoordinates(driverLocation.Latitude, driverLocation.Longitude, trip.PickupLat, trip.PickupLong, 10)
 	for _, point := range path {
 		time.Sleep(100 * time.Millisecond)
-		UpdateLocationForDriver(trip.DriverID, models.Location{
+		UpdateLocationForDriver(trip.DriverID, model.Location{
 			Latitude:  point[0],
 			Longitude: point[1],
 		})
 	}
-	UpdateLocationForDriver(trip.DriverID, models.Location{
+	UpdateLocationForDriver(trip.DriverID, model.Location{
 		Latitude:  trip.PickupLat,
 		Longitude: trip.PickupLong,
 	})
@@ -92,20 +92,20 @@ func StartTripLoop(tripID string) {
 	path = GenerateMiddleCoordinates(trip.PickupLat, trip.PickupLong, trip.DropoffLat, trip.DropoffLong, 10)
 	for _, point := range path {
 		time.Sleep(100 * time.Millisecond)
-		UpdateLocationForDriver(trip.DriverID, models.Location{
+		UpdateLocationForDriver(trip.DriverID, model.Location{
 			Latitude:  point[0],
 			Longitude: point[1],
 		})
-		UpdateLocationForRider(trip.RiderID, models.Location{
+		UpdateLocationForRider(trip.RiderID, model.Location{
 			Latitude:  point[0],
 			Longitude: point[1],
 		})
 	}
-	UpdateLocationForDriver(trip.DriverID, models.Location{
+	UpdateLocationForDriver(trip.DriverID, model.Location{
 		Latitude:  trip.DropoffLat,
 		Longitude: trip.DropoffLong,
 	})
-	UpdateLocationForRider(trip.RiderID, models.Location{
+	UpdateLocationForRider(trip.RiderID, model.Location{
 		Latitude:  trip.DropoffLat,
 		Longitude: trip.DropoffLong,
 	})
@@ -120,16 +120,16 @@ func StartTripLoop(tripID string) {
 //  LOCAL DATABASE FUNCTIONS
 // ================================
 
-func GetAllTrips() []models.Trip {
-	trips := make([]models.Trip, 0)
+func GetAllTrips() []model.Trip {
+	trips := make([]model.Trip, 0)
 	for _, trip := range database.Local.Trips.Items() {
 		trips = append(trips, trip)
 	}
 	return trips
 }
 
-func GetTripsByStatus(status string) []models.Trip {
-	trips := make([]models.Trip, 0)
+func GetTripsByStatus(status string) []model.Trip {
+	trips := make([]model.Trip, 0)
 	for _, trip := range database.Local.Trips.Items() {
 		if trip.Status == status {
 			trips = append(trips, trip)
@@ -138,15 +138,15 @@ func GetTripsByStatus(status string) []models.Trip {
 	return trips
 }
 
-func GetTrip(tripID string) models.Trip {
+func GetTrip(tripID string) model.Trip {
 	trip, ok := database.Local.Trips.Get(tripID)
 	if !ok {
-		return models.Trip{}
+		return model.Trip{}
 	}
 	return trip
 }
 
-func UpsertTrip(trip models.Trip) {
+func UpsertTrip(trip model.Trip) {
 	database.Local.Trips.Set(trip.ID, trip)
 	go exporter.KafkaProduceTrip(trip)
 }

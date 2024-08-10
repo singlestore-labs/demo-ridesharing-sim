@@ -5,7 +5,7 @@ import (
 	"simulator/config"
 	"simulator/database"
 	"simulator/exporter"
-	"simulator/models"
+	"simulator/model"
 	"time"
 )
 
@@ -15,7 +15,7 @@ import (
 
 func StartDriverLoop(userID string, city string) {
 	initLat, initLong := GenerateCoordinateInCity(city)
-	UpdateLocationForDriver(userID, models.Location{
+	UpdateLocationForDriver(userID, model.Location{
 		Latitude:  initLat,
 		Longitude: initLong,
 	})
@@ -44,9 +44,9 @@ func StartDriverLoop(userID string, city string) {
 	}
 }
 
-func GenerateDriver(city string) models.Driver {
+func GenerateDriver(city string) model.Driver {
 	lat, long := GenerateCoordinateInCity(city)
-	driver := models.Driver{
+	driver := model.Driver{
 		ID:          config.Faker.UUID().V4(),
 		FirstName:   config.Faker.Person().FirstName(),
 		LastName:    config.Faker.Person().LastName(),
@@ -55,7 +55,7 @@ func GenerateDriver(city string) models.Driver {
 		DateOfBirth: config.Faker.Time().TimeBetween(time.Now().AddDate(-30, 0, 0), time.Now()),
 		CreatedAt:   time.Now(),
 	}
-	driver.Location = models.Location{
+	driver.Location = model.Location{
 		UserID:    driver.ID,
 		Latitude:  lat,
 		Longitude: long,
@@ -65,8 +65,8 @@ func GenerateDriver(city string) models.Driver {
 	return driver
 }
 
-func GenerateDrivers(numDrivers int, city string) []models.Driver {
-	drivers := make([]models.Driver, numDrivers)
+func GenerateDrivers(numDrivers int, city string) []model.Driver {
+	drivers := make([]model.Driver, numDrivers)
 	for i := 0; i < numDrivers; i++ {
 		drivers[i] = GenerateDriver(city)
 	}
@@ -77,28 +77,28 @@ func GenerateDrivers(numDrivers int, city string) []models.Driver {
 //  LOCAL DATABASE FUNCTIONS
 // ================================
 
-func GetAllDrivers() []models.Driver {
-	drivers := make([]models.Driver, 0)
+func GetAllDrivers() []model.Driver {
+	drivers := make([]model.Driver, 0)
 	for _, driver := range database.Local.Drivers.Items() {
 		drivers = append(drivers, driver)
 	}
 	return drivers
 }
 
-func GetDriver(userID string) models.Driver {
+func GetDriver(userID string) model.Driver {
 	driver, ok := database.Local.Drivers.Get(userID)
 	if !ok {
-		return models.Driver{}
+		return model.Driver{}
 	}
 	return driver
 }
 
-func GetLocationForDriver(userID string) models.Location {
+func GetLocationForDriver(userID string) model.Location {
 	driver := GetDriver(userID)
 	return driver.Location
 }
 
-func UpdateLocationForDriver(userID string, location models.Location) {
+func UpdateLocationForDriver(userID string, location model.Location) {
 	driver := GetDriver(userID)
 	if driver.ID == "" {
 		return

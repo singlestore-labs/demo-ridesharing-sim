@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"simulator/models"
+	"simulator/model"
 	"strconv"
 	"time"
 )
 
-func ExportRidersToCSV(riders []models.Rider) {
+func ExportRidersToCSV(riders []model.Rider) {
 	// Create CSV file for riders
 	riderFile, err := os.Create("data/riders.csv")
 	if err != nil {
@@ -38,7 +38,7 @@ func ExportRidersToCSV(riders []models.Rider) {
 	}
 }
 
-func ImportRidersFromCSV(filePath string) ([]models.Rider, error) {
+func ImportRidersFromCSV(filePath string) ([]model.Rider, error) {
 	// Open the CSV file
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -54,7 +54,7 @@ func ImportRidersFromCSV(filePath string) ([]models.Rider, error) {
 	}
 
 	records = records[1:]
-	riders := make([]models.Rider, 0, len(records))
+	riders := make([]model.Rider, 0, len(records))
 
 	for _, record := range records {
 		if len(record) != 7 {
@@ -68,7 +68,7 @@ func ImportRidersFromCSV(filePath string) ([]models.Rider, error) {
 		if err != nil {
 			return nil, fmt.Errorf("error parsing created at: %w", err)
 		}
-		rider := models.Rider{
+		rider := model.Rider{
 			ID:          record[0],
 			FirstName:   record[1],
 			LastName:    record[2],
@@ -82,7 +82,7 @@ func ImportRidersFromCSV(filePath string) ([]models.Rider, error) {
 	return riders, nil
 }
 
-func ExportDriversToCSV(drivers []models.Driver) {
+func ExportDriversToCSV(drivers []model.Driver) {
 	// Create CSV file for drivers
 	driverFile, err := os.Create("data/drivers.csv")
 	if err != nil {
@@ -110,7 +110,7 @@ func ExportDriversToCSV(drivers []models.Driver) {
 	}
 }
 
-func ImportDriversFromCSV(filePath string) ([]models.Driver, error) {
+func ImportDriversFromCSV(filePath string) ([]model.Driver, error) {
 	// Open the CSV file
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -126,7 +126,7 @@ func ImportDriversFromCSV(filePath string) ([]models.Driver, error) {
 	}
 
 	records = records[1:]
-	drivers := make([]models.Driver, 0, len(records))
+	drivers := make([]model.Driver, 0, len(records))
 
 	for _, record := range records {
 		if len(record) != 7 {
@@ -140,7 +140,7 @@ func ImportDriversFromCSV(filePath string) ([]models.Driver, error) {
 		if err != nil {
 			return nil, fmt.Errorf("error parsing created at: %w", err)
 		}
-		driver := models.Driver{
+		driver := model.Driver{
 			ID:          record[0],
 			FirstName:   record[1],
 			LastName:    record[2],
@@ -154,7 +154,7 @@ func ImportDriversFromCSV(filePath string) ([]models.Driver, error) {
 	return drivers, nil
 }
 
-func ExportTripsToCSV(trips []models.Trip) {
+func ExportTripsToCSV(trips []model.Trip) {
 	// Create CSV file for trips
 	tripsFile, err := os.Create("data/trips.csv")
 	if err != nil {

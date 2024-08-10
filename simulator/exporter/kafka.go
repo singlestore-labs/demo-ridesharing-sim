@@ -6,7 +6,7 @@ import (
 	"log"
 	"net"
 	"simulator/config"
-	"simulator/models"
+	"simulator/model"
 	"time"
 
 	"github.com/goccy/go-json"
@@ -93,7 +93,7 @@ func CreateTopic(topic string) {
 	log.Printf("kafka topic %s created successfully!\n", t.Topic)
 }
 
-func KafkaProduceTrip(trip models.Trip) {
+func KafkaProduceTrip(trip model.Trip) {
 	jsonTrip, err := json.Marshal(trip)
 	if err != nil {
 		log.Fatalf("unable to marshal trip: %v", err)
@@ -114,7 +114,7 @@ func KafkaProduceTrip(trip models.Trip) {
 	)
 }
 
-func KafkaProduceRider(rider models.Rider) {
+func KafkaProduceRider(rider model.Rider) {
 	jsonRider, err := json.Marshal(rider)
 	if err != nil {
 		log.Fatalf("unable to marshal rider: %v", err)
@@ -134,7 +134,7 @@ func KafkaProduceRider(rider models.Rider) {
 	)
 }
 
-func KafkaProduceDriver(driver models.Driver) {
+func KafkaProduceDriver(driver model.Driver) {
 	jsonDriver, err := json.Marshal(driver)
 	if err != nil {
 		log.Fatalf("unable to marshal driver: %v", err)
@@ -159,7 +159,7 @@ func KafkaDebugTripConsumer() {
 	for {
 		fs := KafkaClient.PollFetches(context.Background())
 		fs.EachRecord(func(r *kgo.Record) {
-			var trip models.Trip
+			var trip model.Trip
 			// err := Serde.Decode(r.Value, &trip)
 			err := json.Unmarshal(r.Value, &trip)
 			if err != nil {

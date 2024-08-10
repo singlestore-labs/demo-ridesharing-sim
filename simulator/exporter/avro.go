@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"simulator/models"
+	"simulator/model"
 
 	"github.com/hamba/avro"
 	"github.com/twmb/franz-go/pkg/sr"
@@ -48,7 +48,7 @@ func CreateAvroSchemas() {
 
 	Serde.Register(
 		ss.ID,
-		models.Trip{},
+		model.Trip{},
 		sr.EncodeFn(func(v any) ([]byte, error) {
 			return avro.Marshal(tripSchema, v)
 		}),

@@ -5,7 +5,7 @@ import (
 	"simulator/config"
 	"simulator/database"
 	"simulator/exporter"
-	"simulator/models"
+	"simulator/model"
 	"time"
 )
 
@@ -17,7 +17,7 @@ func StartRiderLoop(userID string, city string) {
 	for {
 		UpdateStatusForRider(userID, "idle")
 		initLat, initLong := GenerateCoordinateInCity(city)
-		UpdateLocationForRider(userID, models.Location{
+		UpdateLocationForRider(userID, model.Location{
 			Latitude:  initLat,
 			Longitude: initLong,
 		})
@@ -46,9 +46,9 @@ func StartRiderLoop(userID string, city string) {
 	}
 }
 
-func GenerateRider(city string) models.Rider {
+func GenerateRider(city string) model.Rider {
 	lat, long := GenerateCoordinateInCity(city)
-	rider := models.Rider{
+	rider := model.Rider{
 		ID:          config.Faker.UUID().V4(),
 		FirstName:   config.Faker.Person().FirstName(),
 		LastName:    config.Faker.Person().LastName(),
@@ -57,7 +57,7 @@ func GenerateRider(city string) models.Rider {
 		DateOfBirth: config.Faker.Time().TimeBetween(time.Now().AddDate(-30, 0, 0), time.Now()),
 		CreatedAt:   time.Now(),
 	}
-	rider.Location = models.Location{
+	rider.Location = model.Location{
 		UserID:    rider.ID,
 		Latitude:  lat,
 		Longitude: long,
@@ -67,8 +67,8 @@ func GenerateRider(city string) models.Rider {
 	return rider
 }
 
-func GenerateRiders(numRiders int, city string) []models.Rider {
-	riders := make([]models.Rider, numRiders)
+func GenerateRiders(numRiders int, city string) []model.Rider {
+	riders := make([]model.Rider, numRiders)
 	for i := 0; i < numRiders; i++ {
 		riders[i] = GenerateRider(city)
 	}
@@ -79,28 +79,28 @@ func GenerateRiders(numRiders int, city string) []models.Rider {
 //  LOCAL DATABASE FUNCTIONS
 // ================================
 
-func GetAllRiders() []models.Rider {
-	riders := make([]models.Rider, 0)
+func GetAllRiders() []model.Rider {
+	riders := make([]model.Rider, 0)
 	for _, rider := range database.Local.Riders.Items() {
 		riders = append(riders, rider)
 	}
 	return riders
 }
 
-func GetRider(userID string) models.Rider {
+func GetRider(userID string) model.Rider {
 	rider, ok := database.Local.Riders.Get(userID)
 	if !ok {
-		return models.Rider{}
+		return model.Rider{}
 	}
 	return rider
 }
 
-func GetLocationForRider(userID string) models.Location {
+func GetLocationForRider(userID string) model.Location {
 	rider := GetRider(userID)
 	return rider.Location
 }
 
-func UpdateLocationForRider(userID string, location models.Location) {
+func UpdateLocationForRider(userID string, location model.Location) {
 	rider := GetRider(userID)
 	if rider.ID == "" {
 		return
