@@ -114,9 +114,9 @@ CREATE OR REPLACE PIPELINE rideshare_kafka_riders AS
         phone_number <- phone_number,
         @date_of_birth <- date_of_birth,
         @created_at <- created_at,
-        location_city <- location::city,
-        location_lat <- location::latitude,
-        location_long <- location::longitude,
+        location_city <- location_city,
+        location_lat <- location_lat,
+        location_long <- location_long,
         status <- status
     )
     SET date_of_birth = STR_TO_DATE(@date_of_birth, '%Y-%m-%dT%H:%i:%s.%f'),
@@ -175,9 +175,9 @@ CREATE OR REPLACE PIPELINE rideshare_kafka_drivers AS
         phone_number <- phone_number,
         @date_of_birth <- date_of_birth,
         @created_at <- created_at,
-        location_city <- location::city,
-        location_lat <- location::latitude,
-        location_long <- location::longitude,
+        location_city <- location_city,
+        location_lat <- location_lat,
+        location_long <- location_long,
         status <- status
     )
     SET date_of_birth = STR_TO_DATE(@date_of_birth, '%Y-%m-%dT%H:%i:%s.%f'),
