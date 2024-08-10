@@ -2,15 +2,19 @@ package exporter
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"log"
+	"net"
 	"simulator/config"
 	"simulator/models"
 	"time"
 
+	"github.com/goccy/go-json"
 	"github.com/twmb/franz-go/pkg/kerr"
 	"github.com/twmb/franz-go/pkg/kgo"
 	"github.com/twmb/franz-go/pkg/kmsg"
+	"github.com/twmb/franz-go/pkg/sasl/plain"
 	"github.com/twmb/franz-go/pkg/sr"
 )
 
@@ -24,14 +28,34 @@ func InitializeKafkaClient() {
 		return
 	}
 	seeds := []string{config.Kafka.Broker}
-	cl, err := kgo.NewClient(
-		kgo.SeedBrokers(seeds...),
-		kgo.ConsumerGroup("simulator"),
-	)
-	if err != nil {
-		log.Fatalf("unable to create kafka client: %v", err)
+
+	if config.Kafka.SASLUsername != "" && config.Kafka.SASLPassword != "" {
+		tlsDialer := &tls.Dialer{NetDialer: &net.Dialer{Timeout: 10 * time.Second}}
+		opts := []kgo.Opt{
+			kgo.SeedBrokers(seeds...),
+			kgo.ConsumerGroup("simulator"),
+			kgo.SASL(plain.Auth{
+				User: config.Kafka.SASLUsername,
+				Pass: config.Kafka.SASLPassword,
+			}.AsMechanism()),
+			kgo.Dialer(tlsDialer.DialContext),
+		}
+		cl, err := kgo.NewClient(opts...)
+		if err != nil {
+			log.Fatalf("unable to create kafka client: %v", err)
+		}
+		KafkaClient = cl
+	} else {
+		cl, err := kgo.NewClient(
+			kgo.SeedBrokers(seeds...),
+			kgo.ConsumerGroup("simulator"),
+		)
+		if err != nil {
+			log.Fatalf("unable to create kafka client: %v", err)
+		}
+		KafkaClient = cl
 	}
-	KafkaClient = cl
+	log.Printf("kafka client connected successfully!\n")
 
 	rcl, err := sr.NewClient(sr.URLs(config.Kafka.SchemaRegistry))
 	if err != nil {
@@ -39,11 +63,11 @@ func InitializeKafkaClient() {
 	}
 	SchemaRegistryClient = rcl
 
-	for _, topic := range []string{"ridesharing-sim.trips"} {
+	for _, topic := range []string{"ridesharing-sim-trips"} {
 		CreateTopic(topic)
 	}
 
-	CreateAvroSchemas()
+	// CreateAvroSchemas()
 }
 
 func CreateTopic(topic string) {
@@ -67,12 +91,17 @@ func CreateTopic(topic string) {
 }
 
 func KafkaProduceTrip(trip models.Trip) {
+	jsonTrip, err := json.Marshal(trip)
+	if err != nil {
+		log.Fatalf("unable to marshal trip: %v", err)
+	}
 	KafkaClient.Produce(
 		context.Background(),
 		&kgo.Record{
 			Key:   []byte(trip.ID),
-			Topic: "ridesharing-sim.trips",
-			Value: Serde.MustEncode(trip),
+			Topic: "ridesharing-sim-trips",
+			// Value: Serde.MustEncode(trip),
+			Value: jsonTrip,
 		},
 		func(r *kgo.Record, err error) {
 			if err != nil {
@@ -83,12 +112,13 @@ func KafkaProduceTrip(trip models.Trip) {
 }
 
 func KafkaDebugTripConsumer() {
-	KafkaClient.AddConsumeTopics("ridesharing-sim.trips")
+	KafkaClient.AddConsumeTopics("ridesharing-sim-trips")
 	for {
 		fs := KafkaClient.PollFetches(context.Background())
 		fs.EachRecord(func(r *kgo.Record) {
 			var trip models.Trip
-			err := Serde.Decode(r.Value, &trip)
+			// err := Serde.Decode(r.Value, &trip)
+			err := json.Unmarshal(r.Value, &trip)
 			if err != nil {
 				fmt.Printf("unable to decode: %v", err)
 			}

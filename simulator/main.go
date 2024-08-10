@@ -61,8 +61,6 @@ func main() {
 		}
 	}()
 
-	go exporter.KafkaDebugTripConsumer()
-
 	// Dump completed trips to CSV every minute
 	// Also acts as a way to keep the main thread alive
 	for {

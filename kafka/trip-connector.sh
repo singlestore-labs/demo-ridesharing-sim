@@ -1,8 +1,8 @@
-KAFKA_TOPIC="ridesharing-sim.trips"
+KAFKA_TOPIC="ridesharing-sim-trips"
 eval $(cat .env)
 
 URL="https://$SNOWFLAKE_ACCOUNT.snowflakecomputing.com"
-NAME="ridesharing-sim.trips"
+NAME="ridesharing-sim-trips-snowflake"
 DB_NAME="RIDESHARE_INGEST"
 TABLE_NAME="TRIPS"
 
@@ -22,10 +22,10 @@ curl -i -X PUT -H "Content-Type:application/json" \
         "topics":"'$KAFKA_TOPIC'",
         "name":"'$NAME'",
         "key.converter":"org.apache.kafka.connect.storage.StringConverter",
-        "value.converter":"io.confluent.connect.avro.AvroConverter",
-        "value.converter.schema.registry.url": "http://host.docker.internal:18081",
+        "value.converter":"org.apache.kafka.connect.json.JsonConverter",
+        "value.converter.schemas.enable":"false",
         "buffer.count.records":"1000000",
-        "buffer.flush.time":"10",
+        "buffer.flush.time":"1",
         "buffer.size.bytes":"250000000",
         "snowflake.topic2table.map":"'$KAFKA_TOPIC:$TABLE_NAME'"
     }'

@@ -13,7 +13,7 @@ import (
 var tripSchema = avro.MustParse(`
 {
   "type": "record",
-  "name": "Trip",
+  "name": "trip",
   "fields": [
     {"name": "id", "type": "string"},
     {"name": "driver_id", "type": "string"},
@@ -36,7 +36,8 @@ var tripSchema = avro.MustParse(`
 
 func CreateAvroSchemas() {
 	// Create the trip schema
-	ss, err := SchemaRegistryClient.CreateSchema(context.Background(), "ridesharing-sim.trips-value", sr.Schema{
+	topic := "ridesharing-sim-trips"
+	ss, err := SchemaRegistryClient.CreateSchema(context.Background(), fmt.Sprintf("%s-value", topic), sr.Schema{
 		Schema: tripSchema.String(),
 		Type:   sr.TypeAvro,
 	})
