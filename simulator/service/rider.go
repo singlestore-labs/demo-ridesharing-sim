@@ -22,7 +22,7 @@ func StartRiderLoop(userID string, city string) {
 		})
 		sleepTime := time.Duration(config.Faker.IntBetween(500, 20000)) * time.Millisecond
 		fmt.Printf("Rider %s is idle for %s\n", userID, sleepTime)
-		// time.Sleep(sleepTime)
+		time.Sleep(sleepTime)
 		tripID := RequestRide(userID, city)
 		if tripID == "" {
 			fmt.Printf("Rider %s failed to request ride\n", userID)

@@ -2,7 +2,6 @@ DROP DATABASE IF EXISTS rideshare_demo;
 CREATE DATABASE rideshare_demo;
 
 USE rideshare_demo;
-
 DROP PIPELINE IF EXISTS rideshare_kafka_trips;
 DROP TABLE IF EXISTS trips;
 CREATE TABLE trips (
