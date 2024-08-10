@@ -1,8 +1,7 @@
 name: ridesharing-sim
 services:
   simulator-0:
-    build:
-      dockerfile: simulator/Dockerfile
+    image: ridesharing_simulator:latest
     environment:
       NUM_RIDERS: 100
       NUM_DRIVERS: 70
@@ -12,14 +11,13 @@ services:
       KAFKA_SASL_USERNAME: $KAFKA_SASL_USERNAME
       KAFKA_SASL_PASSWORD: $KAFKA_SASL_PASSWORD
 
-  simulator-1:
-    build:
-      dockerfile: simulator/Dockerfile
-    environment:
-      NUM_RIDERS: 100
-      NUM_DRIVERS: 70
-      CITY: "San Jose"
-      KAFKA_BROKER: $KAFKA_BROKER
-      KAFKA_SCHEMA_REGISTRY: $KAFKA_SCHEMA_REGISTRY
-      KAFKA_SASL_USERNAME: $KAFKA_SASL_USERNAME
-      KAFKA_SASL_PASSWORD: $KAFKA_SASL_PASSWORD
+  # simulator-1:
+  #   image: ridesharing_simulator:latest
+  #   environment:
+  #     NUM_RIDERS: 100
+  #     NUM_DRIVERS: 70
+  #     CITY: "San Jose"
+  #     KAFKA_BROKER: $KAFKA_BROKER
+  #     KAFKA_SCHEMA_REGISTRY: $KAFKA_SCHEMA_REGISTRY
+  #     KAFKA_SASL_USERNAME: $KAFKA_SASL_USERNAME
+  #     KAFKA_SASL_PASSWORD: $KAFKA_SASL_PASSWORD

@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM golang:1.22-alpine3.19 as builder
+FROM --platform=$BUILDPLATFORM golang:1.22-alpine3.19 AS builder
 
 RUN apk --no-cache add ca-certificates
 RUN apk add --no-cache tzdata
