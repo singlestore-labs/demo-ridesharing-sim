@@ -1,7 +1,7 @@
 # check if go.mod exists in current directory
 if [ ! -f go.mod ]; then
     echo "go.mod not found"
-    echo "Please make sure you are in the root simulator directory"
+    echo "Please make sure you are in the root server directory"
     exit 1
 fi
 
