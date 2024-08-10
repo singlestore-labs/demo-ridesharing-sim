@@ -15,22 +15,19 @@ import (
 
 func StartDriverLoop(userID string, city string) {
 	initLat, initLong := GenerateCoordinateInCity(city)
-	UpdateLocationForDriver(userID, model.Location{
-		Latitude:  initLat,
-		Longitude: initLong,
-	})
+	UpdateLocationForDriver(userID, initLat, initLong)
 	for {
 		UpdateStatusForDriver(userID, "available")
 		sleepTime := time.Duration(config.Faker.IntBetween(500, 2000)) * time.Millisecond
 		time.Sleep(sleepTime)
-		driverLocation := GetLocationForDriver(userID)
-		request := GetClosestRequest(driverLocation.Latitude, driverLocation.Longitude)
+		lat, long := GetLocationForDriver(userID)
+		request := GetClosestRequest(lat, long)
 		accepted := false
 		for !accepted {
 			for request.ID == "" {
 				// log.Printf("Driver %s waiting for request\n", userID)
 				time.Sleep(100 * time.Millisecond)
-				request = GetClosestRequest(driverLocation.Latitude, driverLocation.Longitude)
+				request = GetClosestRequest(lat, long)
 			}
 			accepted = TryAcceptRide(request.ID, userID)
 			if !accepted {
@@ -55,13 +52,10 @@ func GenerateDriver(city string) model.Driver {
 		DateOfBirth: config.Faker.Time().TimeBetween(time.Now().AddDate(-30, 0, 0), time.Now()),
 		CreatedAt:   time.Now(),
 	}
-	driver.Location = model.Location{
-		UserID:    driver.ID,
-		Latitude:  lat,
-		Longitude: long,
-		City:      city,
-		Timestamp: time.Now(),
-	}
+	driver.LocationLat = lat
+	driver.LocationLong = long
+	driver.LocationCity = city
+	driver.Status = "available"
 	return driver
 }
 
@@ -93,20 +87,18 @@ func GetDriver(userID string) model.Driver {
 	return driver
 }
 
-func GetLocationForDriver(userID string) model.Location {
+func GetLocationForDriver(userID string) (float64, float64) {
 	driver := GetDriver(userID)
-	return driver.Location
+	return driver.LocationLat, driver.LocationLong
 }
 
-func UpdateLocationForDriver(userID string, location model.Location) {
+func UpdateLocationForDriver(userID string, lat float64, long float64) {
 	driver := GetDriver(userID)
 	if driver.ID == "" {
 		return
 	}
-	driver.Location.UserID = userID
-	driver.Location.Latitude = location.Latitude
-	driver.Location.Longitude = location.Longitude
-	driver.Location.Timestamp = time.Now()
+	driver.LocationLat = lat
+	driver.LocationLong = long
 	database.Local.Drivers.Set(userID, driver)
 	exporter.KafkaProduceDriver(driver)
 }

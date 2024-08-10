@@ -17,10 +17,7 @@ func StartRiderLoop(userID string, city string) {
 	for {
 		UpdateStatusForRider(userID, "idle")
 		initLat, initLong := GenerateCoordinateInCity(city)
-		UpdateLocationForRider(userID, model.Location{
-			Latitude:  initLat,
-			Longitude: initLong,
-		})
+		UpdateLocationForRider(userID, initLat, initLong)
 		sleepTime := time.Duration(config.Faker.IntBetween(500, 20000)) * time.Millisecond
 		log.Printf("Rider %s is idle for %s\n", userID, sleepTime)
 		time.Sleep(sleepTime)
@@ -57,13 +54,10 @@ func GenerateRider(city string) model.Rider {
 		DateOfBirth: config.Faker.Time().TimeBetween(time.Now().AddDate(-30, 0, 0), time.Now()),
 		CreatedAt:   time.Now(),
 	}
-	rider.Location = model.Location{
-		UserID:    rider.ID,
-		Latitude:  lat,
-		Longitude: long,
-		City:      city,
-		Timestamp: time.Now(),
-	}
+	rider.LocationLat = lat
+	rider.LocationLong = long
+	rider.LocationCity = city
+	rider.Status = "idle"
 	return rider
 }
 
@@ -95,20 +89,18 @@ func GetRider(userID string) model.Rider {
 	return rider
 }
 
-func GetLocationForRider(userID string) model.Location {
+func GetLocationForRider(userID string) (float64, float64) {
 	rider := GetRider(userID)
-	return rider.Location
+	return rider.LocationLat, rider.LocationLong
 }
 
-func UpdateLocationForRider(userID string, location model.Location) {
+func UpdateLocationForRider(userID string, lat float64, long float64) {
 	rider := GetRider(userID)
 	if rider.ID == "" {
 		return
 	}
-	rider.Location.UserID = userID
-	rider.Location.Latitude = location.Latitude
-	rider.Location.Longitude = location.Longitude
-	rider.Location.Timestamp = time.Now()
+	rider.LocationLat = lat
+	rider.LocationLong = long
 	database.Local.Riders.Set(userID, rider)
 	exporter.KafkaProduceRider(rider)
 }

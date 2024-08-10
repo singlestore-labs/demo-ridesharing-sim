@@ -14,9 +14,9 @@ import (
 // ================================
 
 func RequestRide(userID string, city string) string {
-	riderLocation := GetLocationForRider(userID)
+	lat, long := GetLocationForRider(userID)
 	tripDistance := config.Faker.RandomFloat(1, 100, 16000)
-	destLat, destLong := GenerateCoordinateWithinDistanceInCity(city, riderLocation.Latitude, riderLocation.Longitude, tripDistance)
+	destLat, destLong := GenerateCoordinateWithinDistanceInCity(city, lat, long, tripDistance)
 	if destLat == 0 && destLong == 0 {
 		return ""
 	}
@@ -26,11 +26,11 @@ func RequestRide(userID string, city string) string {
 		Status:      "requested",
 		RequestTime: time.Now(),
 		City:        city,
-		PickupLat:   riderLocation.Latitude,
-		PickupLong:  riderLocation.Longitude,
+		PickupLat:   lat,
+		PickupLong:  long,
 		DropoffLat:  destLat,
 		DropoffLong: destLong,
-		Distance:    GetDistanceBetweenCoordinates(riderLocation.Latitude, riderLocation.Longitude, destLat, destLong),
+		Distance:    GetDistanceBetweenCoordinates(lat, long, destLat, destLong),
 	}
 	UpsertTrip(trip)
 	return trip.ID
@@ -70,19 +70,13 @@ func AcceptRide(tripID string, driverID string) {
 func StartTripLoop(tripID string) {
 	trip := GetTrip(tripID)
 	// driver to pickup
-	driverLocation := GetLocationForDriver(trip.DriverID)
-	path := GenerateMiddleCoordinates(driverLocation.Latitude, driverLocation.Longitude, trip.PickupLat, trip.PickupLong, 10)
+	lat, long := GetLocationForDriver(trip.DriverID)
+	path := GenerateMiddleCoordinates(lat, long, trip.PickupLat, trip.PickupLong, 10)
 	for _, point := range path {
 		time.Sleep(100 * time.Millisecond)
-		UpdateLocationForDriver(trip.DriverID, model.Location{
-			Latitude:  point[0],
-			Longitude: point[1],
-		})
+		UpdateLocationForDriver(trip.DriverID, point[0], point[1])
 	}
-	UpdateLocationForDriver(trip.DriverID, model.Location{
-		Latitude:  trip.PickupLat,
-		Longitude: trip.PickupLong,
-	})
+	UpdateLocationForDriver(trip.DriverID, trip.PickupLat, trip.PickupLong)
 	// pickup rider
 	time.Sleep(time.Duration(config.Faker.IntBetween(200, 3000)) * time.Millisecond)
 	trip.Status = "en_route"
@@ -92,23 +86,11 @@ func StartTripLoop(tripID string) {
 	path = GenerateMiddleCoordinates(trip.PickupLat, trip.PickupLong, trip.DropoffLat, trip.DropoffLong, 10)
 	for _, point := range path {
 		time.Sleep(100 * time.Millisecond)
-		UpdateLocationForDriver(trip.DriverID, model.Location{
-			Latitude:  point[0],
-			Longitude: point[1],
-		})
-		UpdateLocationForRider(trip.RiderID, model.Location{
-			Latitude:  point[0],
-			Longitude: point[1],
-		})
+		UpdateLocationForDriver(trip.DriverID, point[0], point[1])
+		UpdateLocationForRider(trip.RiderID, point[0], point[1])
 	}
-	UpdateLocationForDriver(trip.DriverID, model.Location{
-		Latitude:  trip.DropoffLat,
-		Longitude: trip.DropoffLong,
-	})
-	UpdateLocationForRider(trip.RiderID, model.Location{
-		Latitude:  trip.DropoffLat,
-		Longitude: trip.DropoffLong,
-	})
+	UpdateLocationForDriver(trip.DriverID, trip.DropoffLat, trip.DropoffLong)
+	UpdateLocationForRider(trip.RiderID, trip.DropoffLat, trip.DropoffLong)
 	// dropoff rider
 	time.Sleep(time.Duration(config.Faker.IntBetween(200, 3000)) * time.Millisecond)
 	trip.Status = "completed"
