@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/paulmach/orb"
 	"github.com/paulmach/orb/geojson"
@@ -30,8 +31,12 @@ func GenerateCoordinateInCity(city string) (float64, float64) {
 }
 
 func GenerateCoordinateWithinDistanceInCity(city string, lat, lng, distance float64) (float64, float64) {
+	startTime := time.Now()
 	if city == "San Francisco" {
 		for {
+			if time.Since(startTime) > 5*time.Second {
+				return 0, 0
+			}
 			angle := rand.Float64() * 2 * math.Pi
 			// Assume distance is in meters, convert to degrees (approximate)
 			distanceDegrees := distance / 111000 // 1 degree ≈ 111km

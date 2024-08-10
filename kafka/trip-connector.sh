@@ -3,7 +3,8 @@ eval $(cat .env)
 
 URL="https://$SNOWFLAKE_ACCOUNT.snowflakecomputing.com"
 NAME="ridesharing-sim-trips-snowflake"
-DB_NAME="RIDESHARE_INGEST"
+DB_NAME="RIDESHARE_DEMO"
+ROLE_NAME="RIDESHARE_INGEST"
 TABLE_NAME="TRIPS"
 
 curl -i -X PUT -H "Content-Type:application/json" \
@@ -14,7 +15,7 @@ curl -i -X PUT -H "Content-Type:application/json" \
         "snowflake.database.name":"'$DB_NAME'",
         "snowflake.private.key":"'$PRIVATE_KEY'",
         "snowflake.schema.name":"PUBLIC",
-        "snowflake.role.name":"'$DB_NAME'",
+        "snowflake.role.name":"'$ROLE_NAME'",
         "snowflake.url.name":"'$URL'",
         "snowflake.user.name":"'$SNOWFLAKE_USER'",
         "snowflake.enable.schematization": "TRUE",
