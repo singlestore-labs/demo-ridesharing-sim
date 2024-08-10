@@ -1,8 +1,9 @@
+-- Create the database
 DROP DATABASE IF EXISTS rideshare_demo;
 CREATE DATABASE rideshare_demo;
-
 USE rideshare_demo;
-DROP PIPELINE IF EXISTS rideshare_kafka_trips;
+
+-- Create the trips table
 DROP TABLE IF EXISTS trips;
 CREATE TABLE trips (
     id VARCHAR(255) NOT NULL,
@@ -13,16 +14,17 @@ CREATE TABLE trips (
     accept_time DATETIME(6),
     pickup_time DATETIME(6),
     dropoff_time DATETIME(6),
-    fare INT NOT NULL,
-    distance DOUBLE NOT NULL,
-    pickup_lat DOUBLE NOT NULL,
-    pickup_long DOUBLE NOT NULL,
-    dropoff_lat DOUBLE NOT NULL,
-    dropoff_long DOUBLE NOT NULL,
-    city VARCHAR(255) NOT NULL,
+    fare INT,
+    distance DOUBLE,
+    pickup_lat DOUBLE,
+    pickup_long DOUBLE,
+    dropoff_lat DOUBLE,
+    dropoff_long DOUBLE,
+    city VARCHAR(255),
     PRIMARY KEY (id)
 );
 
+-- Create the trips pipeline
 CREATE OR REPLACE PIPELINE rideshare_kafka_trips AS
     LOAD DATA KAFKA 'cqrik6h4mu94dmoo2370.any.us-east-1.mpx.prd.cloud.redpanda.com:9092/ridesharing-sim-trips'
     CONFIG '{"sasl.username": "<username>",
@@ -70,11 +72,69 @@ CREATE OR REPLACE PIPELINE rideshare_kafka_trips AS
         dropoff_long = VALUES(dropoff_long),
         city = VALUES(city);
 
+-- Test the trips pipeline
 TEST PIPELINE rideshare_kafka_trips LIMIT 1;
 
+-- Start the trips pipeline
 START PIPELINE rideshare_kafka_trips;
 
-SELECT status, COUNT(*) as trip_count
-    FROM trips
-    GROUP BY status
-    ORDER BY status;
+-- Create the riders table
+DROP TABLE IF EXISTS riders;
+CREATE TABLE riders (
+    id VARCHAR(255) NOT NULL,
+    first_name VARCHAR(255),
+    last_name VARCHAR(255),
+    email VARCHAR(255),
+    phone_number VARCHAR(255),
+    date_of_birth DATETIME(6),
+    created_at DATETIME(6),
+    location_city VARCHAR(255),
+    location_lat DOUBLE,
+    location_long DOUBLE,
+    status VARCHAR(20),
+    PRIMARY KEY (id)
+);
+
+-- Create the riders pipeline
+CREATE OR REPLACE PIPELINE rideshare_kafka_riders AS
+    LOAD DATA KAFKA 'cqrik6h4mu94dmoo2370.any.us-east-1.mpx.prd.cloud.redpanda.com:9092/ridesharing-sim-riders'
+    CONFIG '{"sasl.username": "<username>",
+         "sasl.mechanism": "SCRAM-SHA-256",
+         "security.protocol": "SASL_SSL",
+         "ssl.ca.location": "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem"}'
+    CREDENTIALS '{"sasl.password": "<password>"}'
+    DISABLE OUT_OF_ORDER OPTIMIZATION
+    INTO TABLE riders
+    FORMAT JSON
+    (
+        id <- id,
+        first_name <- first_name,
+        last_name <- last_name,
+        email <- email,
+        phone_number <- phone_number,
+        @date_of_birth <- date_of_birth,
+        @created_at <- created_at,
+        location_city <- location::city,
+        location_lat <- location::latitude,
+        location_long <- location::longitude,
+        status <- status
+    )
+    SET date_of_birth = STR_TO_DATE(@date_of_birth, '%Y-%m-%dT%H:%i:%s.%f'),
+        created_at = STR_TO_DATE(@created_at, '%Y-%m-%dT%H:%i:%s.%f')
+    ON DUPLICATE KEY UPDATE
+        first_name = VALUES(first_name),
+        last_name = VALUES(last_name),
+        email = VALUES(email),
+        phone_number = VALUES(phone_number),
+        date_of_birth = VALUES(date_of_birth),
+        created_at = VALUES(created_at),
+        location_city = VALUES(location_city),
+        location_lat = VALUES(location_lat),
+        location_long = VALUES(location_long),
+        status = VALUES(status)
+
+-- Test the riders pipeline
+TEST PIPELINE rideshare_kafka_riders LIMIT 1;
+
+-- Start the riders pipeline
+START PIPELINE rideshare_kafka_riders;
