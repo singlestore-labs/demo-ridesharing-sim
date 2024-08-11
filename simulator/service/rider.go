@@ -39,7 +39,7 @@ func StartRiderLoop(userID string, city string) {
 		for GetTrip(tripID).Status != "completed" {
 			time.Sleep(100 * time.Millisecond)
 		}
-		log.Printf("Rider %s completed trip %s\n\n", userID, tripID)
+		log.Printf("Rider %s completed trip %s\n", userID, tripID)
 	}
 }
 

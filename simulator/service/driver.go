@@ -37,7 +37,7 @@ func StartDriverLoop(userID string, city string) {
 		UpdateStatusForDriver(userID, "in_progress")
 		log.Printf("Driver %s accepted request %s\n", userID, request.ID)
 		StartTripLoop(request.ID)
-		log.Printf("Driver %s completed trip %s\n\n", userID, request.ID)
+		log.Printf("Driver %s completed trip %s\n", userID, request.ID)
 	}
 }
 
