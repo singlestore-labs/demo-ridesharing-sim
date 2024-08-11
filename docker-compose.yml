@@ -3,8 +3,8 @@ services:
   simulator-0:
     image: ridesharing_simulator:latest
     environment:
-      NUM_RIDERS: 100
-      NUM_DRIVERS: 70
+      NUM_RIDERS: 200
+      NUM_DRIVERS: 220
       CITY: "San Francisco"
       KAFKA_BROKER: $KAFKA_BROKER
       KAFKA_SCHEMA_REGISTRY: $KAFKA_SCHEMA_REGISTRY
