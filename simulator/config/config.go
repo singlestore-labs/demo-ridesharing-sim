@@ -15,7 +15,7 @@ var NumRiders = 100
 var NumDrivers = 70
 
 var City = os.Getenv("CITY")
-var validCities = []string{"San Francisco"}
+var validCities = []string{"San Francisco", "San Jose"}
 
 var Faker = faker.New()
 

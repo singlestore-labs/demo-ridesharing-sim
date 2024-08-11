@@ -14,41 +14,50 @@ import (
 )
 
 var sfPolygon orb.Polygon
+var sjPolygon orb.Polygon
 
 func GenerateCoordinateInCity(city string) (float64, float64) {
+	bounds := sfPolygon.Bound()
+	polygon := sfPolygon
 	if city == "San Francisco" {
-		bounds := sfPolygon.Bound()
-		for {
-			lat := bounds.Min.Lat() + rand.Float64()*(bounds.Max.Lat()-bounds.Min.Lat())
-			lng := bounds.Min.Lon() + rand.Float64()*(bounds.Max.Lon()-bounds.Min.Lon())
-			point := orb.Point{lng, lat}
-			if planar.PolygonContains(sfPolygon, point) {
-				return lat, lng
-			}
+		bounds = sfPolygon.Bound()
+		polygon = sfPolygon
+	} else if city == "San Jose" {
+		bounds = sjPolygon.Bound()
+		polygon = sjPolygon
+	}
+	for {
+		lat := bounds.Min.Lat() + rand.Float64()*(bounds.Max.Lat()-bounds.Min.Lat())
+		lng := bounds.Min.Lon() + rand.Float64()*(bounds.Max.Lon()-bounds.Min.Lon())
+		point := orb.Point{lng, lat}
+		if planar.PolygonContains(polygon, point) {
+			return lat, lng
 		}
 	}
-	return 0, 0
 }
 
 func GenerateCoordinateWithinDistanceInCity(city string, lat, lng, distance float64) (float64, float64) {
 	startTime := time.Now()
+	polygon := sfPolygon
 	if city == "San Francisco" {
-		for {
-			if time.Since(startTime) > 5*time.Second {
-				return 0, 0
-			}
-			angle := rand.Float64() * 2 * math.Pi
-			// Assume distance is in meters, convert to degrees (approximate)
-			distanceDegrees := distance / 111000 // 1 degree ≈ 111km
-			newLat := lat + distanceDegrees*math.Cos(angle)
-			newLng := lng + distanceDegrees*math.Sin(angle)/math.Cos(lat*math.Pi/180)
-			point := orb.Point{newLng, newLat}
-			if planar.PolygonContains(sfPolygon, point) {
-				return newLat, newLng
-			}
+		polygon = sfPolygon
+	} else if city == "San Jose" {
+		polygon = sjPolygon
+	}
+	for {
+		if time.Since(startTime) > 10*time.Second {
+			return 0, 0
+		}
+		angle := rand.Float64() * 2 * math.Pi
+		// Assume distance is in meters, convert to degrees (approximate)
+		distanceDegrees := distance / 111000 // 1 degree ≈ 111km
+		newLat := lat + distanceDegrees*math.Cos(angle)
+		newLng := lng + distanceDegrees*math.Sin(angle)/math.Cos(lat*math.Pi/180)
+		point := orb.Point{newLng, newLat}
+		if planar.PolygonContains(polygon, point) {
+			return newLat, newLng
 		}
 	}
-	return 0, 0
 }
 
 func GetDistanceBetweenCoordinates(lat1, lng1, lat2, lng2 float64) float64 {
@@ -88,10 +97,33 @@ func LoadGeoData() {
 	if err != nil {
 		panic(err)
 	}
+	sjPolygon, err = loadSJPolygon()
+	if err != nil {
+		panic(err)
+	}
 }
 
 func loadSFPolygon() (orb.Polygon, error) {
 	data, err := os.ReadFile(filepath.Join("data", "san-francisco.geojson"))
+	if err != nil {
+		return nil, err
+	}
+	fc, err := geojson.UnmarshalFeatureCollection(data)
+	if err != nil {
+		return nil, err
+	}
+	if len(fc.Features) == 0 {
+		return nil, fmt.Errorf("no features found in GeoJSON")
+	}
+	polygon, ok := fc.Features[0].Geometry.(orb.Polygon)
+	if !ok {
+		return nil, fmt.Errorf("first feature is not a polygon")
+	}
+	return polygon, nil
+}
+
+func loadSJPolygon() (orb.Polygon, error) {
+	data, err := os.ReadFile(filepath.Join("data", "san-jose.geojson"))
 	if err != nil {
 		return nil, err
 	}

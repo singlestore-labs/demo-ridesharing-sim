@@ -5,7 +5,7 @@ services:
     environment:
       NUM_RIDERS: 200
       NUM_DRIVERS: 220
-      CITY: "San Francisco"
+      CITY: "San Jose"
       KAFKA_BROKER: $KAFKA_BROKER
       KAFKA_SCHEMA_REGISTRY: $KAFKA_SCHEMA_REGISTRY
       KAFKA_SASL_USERNAME: $KAFKA_SASL_USERNAME
