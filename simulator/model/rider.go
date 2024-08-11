@@ -18,3 +18,8 @@ type Rider struct {
 	LocationLong float64   `json:"location_long"`
 	Status       string    `json:"status"`
 }
+
+func (r *Rider) ToUTC() {
+	r.DateOfBirth = r.DateOfBirth.UTC()
+	r.CreatedAt = r.CreatedAt.UTC()
+}

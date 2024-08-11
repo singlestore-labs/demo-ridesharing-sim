@@ -18,3 +18,8 @@ type Driver struct {
 	LocationLong float64   `json:"location_long"`
 	Status       string    `json:"status"`
 }
+
+func (d *Driver) ToUTC() {
+	d.CreatedAt = d.CreatedAt.UTC()
+	d.DateOfBirth = d.DateOfBirth.UTC()
+}

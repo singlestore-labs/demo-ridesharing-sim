@@ -94,6 +94,7 @@ func CreateTopic(topic string) {
 }
 
 func KafkaProduceTrip(trip model.Trip) {
+	trip.ToUTC()
 	jsonTrip, err := json.Marshal(trip)
 	if err != nil {
 		log.Fatalf("unable to marshal trip: %v", err)
@@ -115,6 +116,7 @@ func KafkaProduceTrip(trip model.Trip) {
 }
 
 func KafkaProduceRider(rider model.Rider) {
+	rider.ToUTC()
 	jsonRider, err := json.Marshal(rider)
 	if err != nil {
 		log.Fatalf("unable to marshal rider: %v", err)
@@ -135,6 +137,7 @@ func KafkaProduceRider(rider model.Rider) {
 }
 
 func KafkaProduceDriver(driver model.Driver) {
+	driver.ToUTC()
 	jsonDriver, err := json.Marshal(driver)
 	if err != nil {
 		log.Fatalf("unable to marshal driver: %v", err)

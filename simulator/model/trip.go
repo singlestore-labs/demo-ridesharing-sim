@@ -21,3 +21,10 @@ type Trip struct {
 	DropoffLong float64   `avro:"dropoff_long" json:"dropoff_long"`
 	City        string    `avro:"city" json:"city"`
 }
+
+func (t *Trip) ToUTC() {
+	t.RequestTime = t.RequestTime.UTC()
+	t.AcceptTime = t.AcceptTime.UTC()
+	t.PickupTime = t.PickupTime.UTC()
+	t.DropoffTime = t.DropoffTime.UTC()
+}
