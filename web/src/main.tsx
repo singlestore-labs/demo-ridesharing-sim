@@ -3,14 +3,19 @@ import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { Toaster } from "./components/ui/sonner.tsx";
-import App from "./App.tsx";
+import { Toaster } from "@/components/ui/sonner.tsx";
+import DashboardPage from "@/DashboardPage.tsx";
 import { ThemeProvider } from "@/components/theme-provider.tsx";
+import AnalyticsPage from "@/AnalyticsPage.tsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
+    element: <DashboardPage />,
+  },
+  {
+    path: "/analytics",
+    element: <AnalyticsPage />,
   },
 ]);
 

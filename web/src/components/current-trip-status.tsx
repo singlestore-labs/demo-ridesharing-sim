@@ -9,6 +9,7 @@ import {
   WAITING_FOR_PICKUP_COLOR,
 } from "@/consts/config";
 import { toast } from "sonner";
+import { useCity, useDatabase } from "@/lib/store";
 
 interface TripStats {
   drivers_available: number;
@@ -22,11 +23,14 @@ interface TripStats {
   trips_requested: number;
 }
 
-interface RealtimeTripsProps {
+interface CurrentTripStatusProps {
   refreshInterval: number;
 }
 
-export function RealtimeTrips({ refreshInterval }: RealtimeTripsProps) {
+export function CurrentTripStatus({ refreshInterval }: CurrentTripStatusProps) {
+  const database = useDatabase();
+  const city = useCity();
+
   const [tripStats, setTripStats] = useState<TripStats | null>(null);
 
   const refreshData = useCallback(() => {
@@ -42,7 +46,7 @@ export function RealtimeTrips({ refreshInterval }: RealtimeTripsProps) {
     const intervalId = setInterval(fetchData, refreshInterval);
 
     return () => clearInterval(intervalId);
-  }, [refreshInterval]);
+  }, [refreshInterval, database, city]);
 
   useEffect(() => {
     const cleanup = refreshData();
@@ -50,7 +54,10 @@ export function RealtimeTrips({ refreshInterval }: RealtimeTripsProps) {
   }, [refreshData]);
 
   const getTripStats = async () => {
-    const response = await axios.get(`${BACKEND_URL}/trips/current/status`);
+    const cityParam = city === "All" ? "" : city;
+    const response = await axios.get(
+      `${BACKEND_URL}/trips/current/status?database=${database}&city=${cityParam}`,
+    );
     setTripStats(response.data);
   };
 

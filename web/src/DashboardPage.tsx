@@ -1,7 +1,8 @@
-import { useRef, useEffect, useState, useCallback } from "react";
+import { useRef, useEffect, useCallback } from "react";
 import mapboxgl from "mapbox-gl";
 import {
   BACKEND_URL,
+  CITY_COORDINATES,
   EN_ROUTE_COLOR,
   MAPBOX_TOKEN,
   SINGLESTORE_PURPLE_500,
@@ -10,26 +11,22 @@ import {
 } from "@/consts/config";
 import axios from "axios";
 import { toast } from "sonner";
-import { Card } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { ModeToggle } from "@/components/mode-toggle";
 import { useTheme } from "@/components/theme-provider";
-import { RealtimeTrips } from "./components/realtime-trips";
+import Header from "./components/header";
+import { useCity, useDatabase, useRefreshInterval } from "@/lib/store";
+import { Toolbar } from "./components/toolbar";
+import { CurrentTripStatus } from "./components/current-trip-status";
 mapboxgl.accessToken = MAPBOX_TOKEN;
 
-function App() {
+function DashboardPage() {
   const mapContainer = useRef(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const initialLat = 50;
   const initialLong = 50;
 
-  const [refreshInterval, setRefreshInterval] = useState(1000);
+  const refreshInterval = useRefreshInterval();
+  const selectedCity = useCity();
+  const selectedDatabase = useDatabase();
   const { theme } = useTheme();
 
   useEffect(() => {
@@ -47,6 +44,10 @@ function App() {
     map.current.on("load", () => {
       flyTo("San Francisco");
     });
+    // map.current.on("move", () => {
+    //   console.log(map.current?.getCenter());
+    //   console.log(map.current?.getZoom());
+    // });
   });
 
   useEffect(() => {
@@ -58,6 +59,32 @@ function App() {
       );
     }
   }, [theme]);
+
+  useEffect(() => {
+    flyTo(selectedCity);
+  }, [selectedCity]);
+
+  const flyTo = (city: string) => {
+    let coordinates = [0, 0];
+    let zoom = 12;
+
+    if (city in CITY_COORDINATES) {
+      coordinates =
+        CITY_COORDINATES[city as keyof typeof CITY_COORDINATES].coordinates;
+      zoom = CITY_COORDINATES[city as keyof typeof CITY_COORDINATES].zoom;
+    } else {
+      coordinates = [-122.18963, 37.56951];
+      zoom = 9.5;
+    }
+
+    if (map.current) {
+      map.current.flyTo({
+        center: [coordinates[0], coordinates[1]],
+        zoom: zoom,
+        duration: 2000,
+      });
+    }
+  };
 
   const refreshData = useCallback(() => {
     const fetchData = async () => {
@@ -72,32 +99,19 @@ function App() {
     const intervalId = setInterval(fetchData, refreshInterval);
 
     return () => clearInterval(intervalId);
-  }, [refreshInterval]);
+  }, [refreshInterval, selectedCity, selectedDatabase]);
 
   useEffect(() => {
     const cleanup = refreshData();
     return cleanup;
   }, [refreshData]);
 
-  const flyTo = (city: string) => {
-    let coordinates = [0, 0];
-    switch (city) {
-      case "San Francisco":
-        coordinates = [-122.4431, 37.7567];
-        break;
-    }
-    if (map.current) {
-      map.current.flyTo({
-        center: [coordinates[0], coordinates[1]],
-        zoom: 12,
-        duration: 2000,
-      });
-    }
-  };
-
-  const fetchData = async (endpoint: string) => {
+  const getData = async (endpoint: string) => {
+    const cityParam = selectedCity === "All" ? "" : selectedCity;
     try {
-      const response = await axios.get(`${BACKEND_URL}/${endpoint}`);
+      const response = await axios.get(
+        `${BACKEND_URL}/${endpoint}?db=${selectedDatabase}&city=${cityParam}`,
+      );
       return response.data;
     } catch (error) {
       console.error(`Error fetching ${endpoint}:`, error);
@@ -105,11 +119,7 @@ function App() {
     }
   };
 
-  const createGeoJSON = (
-    data: any[],
-    type: "riders" | "drivers",
-    status: string,
-  ) => ({
+  const createGeoJSON = (data: any[], status: string) => ({
     type: "FeatureCollection",
     features: data
       .filter((item) => item.status === status)
@@ -157,12 +167,9 @@ function App() {
   const getRiders = async () => {
     if (!map.current) return;
 
-    const riders = await fetchData("riders");
+    const riders = await getData("riders");
 
-    // const idleRiders = createGeoJSON(riders, 'riders', 'idle');
-    // updateMapLayer(map.current, 'riders-idle', idleRiders, '#bababa');
-
-    const requestedRiders = createGeoJSON(riders, "riders", "requested");
+    const requestedRiders = createGeoJSON(riders, "requested");
     updateMapLayer(
       map.current,
       "riders-requested",
@@ -170,7 +177,7 @@ function App() {
       SINGLESTORE_PURPLE_500,
     );
 
-    const waitingRiders = createGeoJSON(riders, "riders", "waiting");
+    const waitingRiders = createGeoJSON(riders, "waiting");
     updateMapLayer(
       map.current,
       "riders-waiting",
@@ -182,9 +189,9 @@ function App() {
   const getDrivers = async () => {
     if (!map.current) return;
 
-    const drivers = await fetchData("drivers");
+    const drivers = await getData("drivers");
 
-    const availableDrivers = createGeoJSON(drivers, "drivers", "available");
+    const availableDrivers = createGeoJSON(drivers, "available");
     updateMapLayer(
       map.current,
       "drivers-available",
@@ -192,7 +199,7 @@ function App() {
       SINGLESTORE_PURPLE_700,
     );
 
-    const inProgressDrivers = createGeoJSON(drivers, "drivers", "in_progress");
+    const inProgressDrivers = createGeoJSON(drivers, "in_progress");
     updateMapLayer(
       map.current,
       "drivers-in-progress",
@@ -203,33 +210,16 @@ function App() {
 
   return (
     <div className="relative h-screen w-screen">
-      <div className="absolute left-4 top-4 z-10 flex items-center gap-2">
-        <RealtimeTrips refreshInterval={refreshInterval} />
+      <div className="absolute left-0 top-0 z-10 flex w-full flex-col items-start gap-4 p-4">
+        <Header currentPage="dashboard" />
+        <CurrentTripStatus refreshInterval={refreshInterval} />
       </div>
-      <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2">
-        <Card className="p-2">
-          <div className="flex items-center gap-2">
-            <p>Refresh Interval:</p>
-            <Select
-              onValueChange={(value) => setRefreshInterval(Number(value))}
-              value={refreshInterval.toString()}
-            >
-              <SelectTrigger className="w-[80px]">
-                <SelectValue placeholder="Refresh Interval" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1000">1s</SelectItem>
-                <SelectItem value="5000">5s</SelectItem>
-                <SelectItem value="10000">10s</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </Card>
-        <ModeToggle />
+      <div className="absolute bottom-4 right-4 z-10">
+        <Toolbar />
       </div>
       <div ref={mapContainer} className="h-full w-full" />
     </div>
   );
 }
 
-export default App;
+export default DashboardPage;
