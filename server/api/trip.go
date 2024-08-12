@@ -7,10 +7,11 @@ import (
 )
 
 func GetCurrentTripStatus(c *gin.Context) {
-	city := c.Query("city")
 	db := c.Query("db")
+	city := c.Query("city")
 	if city != "" {
-		c.JSON(200, service.GetCurrentTripStatusByCity(city, db))
+		c.JSON(200, service.GetCurrentTripStatusByCity(db, city))
+		return
 	}
 	c.JSON(200, service.GetCurrentTripStatus(db))
 }

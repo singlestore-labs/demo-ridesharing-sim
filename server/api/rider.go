@@ -7,5 +7,11 @@ import (
 )
 
 func GetRiders(c *gin.Context) {
-	c.JSON(200, service.GetAllRiders(c.Query("db")))
+	db := c.Query("db")
+	city := c.Query("city")
+	if city != "" {
+		c.JSON(200, service.GetRidersByCity(db, city))
+	} else {
+		c.JSON(200, service.GetAllRiders(db))
+	}
 }

@@ -23,16 +23,18 @@ func GetCurrentTripStatus(db string) map[string]interface{} {
 	}
 
 	query := `
-		SELECT entity, status, COUNT(*) as count
-		FROM (
-			SELECT 'trips' as entity, status FROM trips
+		SELECT 'trips' as entity, status, COUNT(*) as count
+			FROM trips
+			GROUP BY status
 			UNION ALL
-			SELECT 'riders' as entity, status FROM riders
+			SELECT 'riders' as entity, status, COUNT(*) as count
+			FROM riders
+			GROUP BY status
 			UNION ALL
-			SELECT 'drivers' as entity, status FROM drivers
-		) AS combined
-		GROUP BY entity, status
-		ORDER BY entity, status;
+			SELECT 'drivers' as entity, status, COUNT(*) as count
+			FROM drivers
+			GROUP BY status
+			ORDER BY entity, status;
 	`
 
 	var results []struct {
@@ -74,18 +76,22 @@ func GetCurrentTripStatusByCity(db string, city string) map[string]interface{} {
 	}
 
 	query := `
-		SELECT entity, status, COUNT(*) as count
-		FROM (
-			SELECT 'trips' as entity, status FROM trips WHERE city = ?
+		SELECT 'trips' as entity, status, COUNT(*) as count
+			FROM trips
+			WHERE city = ?
+			GROUP BY status
 			UNION ALL
-			SELECT 'riders' as entity, status FROM riders WHERE city = ?
+			SELECT 'riders' as entity, status, COUNT(*) as count
+			FROM riders
+			WHERE location_city = ?
+			GROUP BY status
 			UNION ALL
-			SELECT 'drivers' as entity, status FROM drivers WHERE city = ?
-		) AS combined
-		GROUP BY entity, status
-		ORDER BY entity, status;
+			SELECT 'drivers' as entity, status, COUNT(*) as count
+			FROM drivers
+			WHERE location_city = ?
+			GROUP BY status
+			ORDER BY entity, status;
 	`
-
 	var results []struct {
 		Entity string
 		Status string
