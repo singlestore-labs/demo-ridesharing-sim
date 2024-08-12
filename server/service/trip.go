@@ -5,6 +5,36 @@ import (
 	"server/database"
 )
 
+func GetCities(db string) []string {
+	var cities []string
+	if db == "snowflake" {
+		rows, err := database.SnowflakeDB.Query("SELECT DISTINCT city FROM trips")
+		if err != nil {
+			return []string{}
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var city string
+			if err := rows.Scan(&city); err != nil {
+				continue
+			}
+			cities = append(cities, city)
+		}
+
+		if err = rows.Err(); err != nil {
+			fmt.Println("Error iterating over rows:", err)
+			return []string{}
+		}
+	} else {
+		err := database.SingleStoreDB.Raw("SELECT DISTINCT city FROM trips").Scan(&cities).Error
+		if err != nil {
+			return []string{}
+		}
+	}
+	return cities
+}
+
 func GetCurrentTripStatus(db string) map[string]interface{} {
 	result := map[string]interface{}{
 		"trips_requested":     0,
