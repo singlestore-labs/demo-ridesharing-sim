@@ -12,6 +12,11 @@ import (
 var SingleStoreDB *gorm.DB
 
 func connectSingleStore() {
+	if config.SingleStore.Host == "" || config.SingleStore.Port == "" || config.SingleStore.Username == "" || config.SingleStore.Password == "" || config.SingleStore.Database == "" {
+		log.Println("SingleStore configuration is not set")
+		return
+	}
+
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=UTC", config.SingleStore.Username, config.SingleStore.Password, config.SingleStore.Host, config.SingleStore.Port, config.SingleStore.Database)
 
 	dialector := mysql.New(mysql.Config{

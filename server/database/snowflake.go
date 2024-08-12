@@ -11,6 +11,11 @@ import (
 var SnowflakeDB *sql.DB
 
 func connectSnowflake() {
+	if config.Snowflake.Account == "" || config.Snowflake.User == "" || config.Snowflake.Password == "" || config.Snowflake.Database == "" || config.Snowflake.Schema == "" || config.Snowflake.Warehouse == "" {
+		log.Println("Snowflake configuration is not set")
+		return
+	}
+
 	cfg := &sf.Config{
 		Account:   config.Snowflake.Account,
 		User:      config.Snowflake.User,
