@@ -38,7 +38,6 @@ func GetAllRiders(db string) []model.Rider {
 		}
 	} else {
 		database.SingleStoreDB.Find(&riders)
-		return riders
 	}
 	return riders
 }
