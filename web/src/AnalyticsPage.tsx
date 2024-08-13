@@ -18,6 +18,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { BACKEND_URL } from "@/consts/config";
 import { useCity, useDatabase } from "@/lib/store";
+import TotalStatistics from "./components/analytics/total-statistics";
+import TodayStatistics from "./components/analytics/today-statistics";
 
 const AnalyticsPage = () => {
   const database = useDatabase();
@@ -84,7 +86,11 @@ const AnalyticsPage = () => {
       <div className="flex w-full flex-col items-start gap-4 p-4">
         <Header currentPage="analytics" />
       </div>
-      <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
+      <div className="flex w-full flex-col items-start gap-4 px-4">
+        <TodayStatistics />
+        <TotalStatistics />
+      </div>
+      <ChartContainer config={chartConfig} className="min-h-[200px] w-[600px]">
         <BarChart data={chartData}>
           <XAxis
             dataKey="hour"
