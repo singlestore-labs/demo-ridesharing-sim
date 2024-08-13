@@ -23,6 +23,8 @@ func SetupRouter() *gin.Engine {
 
 func InitializeRoutes(router *gin.Engine) {
 	router.GET("/trips/current/status", GetCurrentTripStatus)
+	router.GET("/trips/last/hour", GetMinuteTripCountsLastHour)
+	router.GET("/trips/last/day", GetHourlyTripCountsLastDay)
 	router.GET("/riders", GetRiders)
 	router.GET("/drivers", GetDrivers)
 	router.GET("/cities", GetCities)
