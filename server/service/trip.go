@@ -450,3 +450,115 @@ func GetHourlyTripCountsLastDay(db, city string) []map[string]interface{} {
 
 	return results
 }
+
+func GetDailyTripCountsLastWeek(db, city string) []map[string]interface{} {
+	var query string
+	var args []interface{}
+
+	if db == "snowflake" {
+		query = `
+			WITH daily_counts AS (
+				SELECT 
+					DATE(request_time) AS daily_interval,
+					COUNT(*) AS trip_count
+				FROM 
+					trips
+				WHERE 
+					request_time >= DATEADD(DAY, -7, CURRENT_DATE())
+					{{ city_filter }}
+				GROUP BY 
+					daily_interval
+			)
+			SELECT 
+				TO_CHAR(c.daily_interval, 'YYYY-MM-DD') AS daily_interval,
+				c.trip_count,
+				COALESCE(
+					ROUND(
+						(c.trip_count - LAG(c.trip_count) OVER (ORDER BY c.daily_interval)) / 
+						NULLIF(LAG(c.trip_count) OVER (ORDER BY c.daily_interval), 0) * 100,
+						2
+					),
+					0
+				) AS percent_change
+			FROM 
+				daily_counts c
+			ORDER BY 
+				c.daily_interval;
+		`
+	} else {
+		query = `
+			WITH daily_counts AS (
+				SELECT 
+					DATE(request_time) AS daily_interval,
+					COUNT(*) AS trip_count
+				FROM 
+					trips
+				WHERE 
+					request_time >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+					{{ city_filter }}
+				GROUP BY 
+					daily_interval
+			)
+			SELECT 
+				DATE_FORMAT(c.daily_interval, '%Y-%m-%d') AS daily_interval,
+				c.trip_count,
+				COALESCE(
+					ROUND(
+						(c.trip_count - LAG(c.trip_count) OVER (ORDER BY c.daily_interval)) / 
+						NULLIF(LAG(c.trip_count) OVER (ORDER BY c.daily_interval), 0) * 100,
+						2
+					),
+					0
+				) AS percent_change
+			FROM 
+				daily_counts c
+			ORDER BY 
+				c.daily_interval;
+		`
+	}
+
+	// Replace placeholders based on whether city is provided
+	if city != "" {
+		query = strings.ReplaceAll(query, "{{ city_filter }}", "AND city = ?")
+		args = append(args, city)
+	} else {
+		query = strings.ReplaceAll(query, "{{ city_filter }}", "")
+	}
+
+	var results = make([]map[string]interface{}, 0)
+
+	if db == "snowflake" {
+		rows, err := database.SnowflakeDB.Query(query, args...)
+		if err != nil {
+			return nil
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var dailyInterval string
+			var tripCount int
+			var percentChange float64
+
+			if err := rows.Scan(&dailyInterval, &tripCount, &percentChange); err != nil {
+				return nil
+			}
+
+			result := map[string]interface{}{
+				"interval":       dailyInterval,
+				"trip_count":     tripCount,
+				"percent_change": percentChange,
+			}
+			results = append(results, result)
+		}
+
+		if err = rows.Err(); err != nil {
+			return nil
+		}
+	} else {
+		if err := database.SingleStoreDB.Raw(query, args...).Scan(&results).Error; err != nil {
+			return nil
+		}
+	}
+
+	return results
+}

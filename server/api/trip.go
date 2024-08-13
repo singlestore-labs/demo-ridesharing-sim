@@ -32,3 +32,9 @@ func GetHourlyTripCountsLastDay(c *gin.Context) {
 	city := c.Query("city")
 	c.JSON(200, service.GetHourlyTripCountsLastDay(db, city))
 }
+
+func GetDailyTripCountsLastWeek(c *gin.Context) {
+	db := c.Query("db")
+	city := c.Query("city")
+	c.JSON(200, service.GetDailyTripCountsLastWeek(db, city))
+}
