@@ -15,7 +15,7 @@ import { useTheme } from "@/components/theme-provider";
 import Header from "./components/header";
 import { useCity, useDatabase, useRefreshInterval } from "@/lib/store";
 import { Toolbar } from "./components/toolbar";
-import { CurrentTripStatus } from "./components/current-trip-status";
+import { CurrentTripStatus } from "./components/dashboard/current-trip-status";
 mapboxgl.accessToken = MAPBOX_TOKEN;
 
 function DashboardPage() {

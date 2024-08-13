@@ -34,6 +34,7 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.21.2",
     "react-superstore": "^0.1.4",
+    "recharts": "^2.12.7",
     "sonner": "^1.5.0",
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
