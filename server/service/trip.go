@@ -1,6 +1,7 @@
 package service
 
 import (
+	"database/sql"
 	"fmt"
 	"server/database"
 	"strings"
@@ -215,6 +216,198 @@ func GetCurrentTripStatusByCity(db string, city string) map[string]interface{} {
 		key := fmt.Sprintf("%s_%s", r.Entity, r.Status)
 		if _, exists := result[key]; exists {
 			result[key] = r.Count
+		}
+	}
+
+	return result
+}
+
+func GetTotalTripStatistics(db string, city string) map[string]interface{} {
+	result := map[string]interface{}{
+		"total_trips":   0,
+		"avg_duration":  0.0,
+		"avg_distance":  0.0,
+		"avg_wait_time": 0.0,
+	}
+
+	var query string
+	var args []interface{}
+
+	if db == "snowflake" {
+		query = `
+			SELECT 
+				COUNT(*) as total_trips,
+				AVG(DATEDIFF('second', request_time, dropoff_time)) as avg_duration,
+				AVG(distance) as avg_distance,
+				AVG(DATEDIFF('second', request_time, accept_time)) as avg_wait_time
+			FROM trips
+			WHERE status = 'completed'
+			{{ city_filter }}
+		`
+	} else {
+		query = `
+			SELECT 
+				COUNT(*) as total_trips,
+				AVG(TIMESTAMPDIFF(SECOND, request_time, dropoff_time)) as avg_duration,
+				AVG(distance) as avg_distance,
+				AVG(TIMESTAMPDIFF(SECOND, request_time, accept_time)) as avg_wait_time
+			FROM trips
+			WHERE status = 'completed'
+			{{ city_filter }}
+		`
+	}
+
+	// Replace placeholders based on whether city is provided
+	if city != "" {
+		query = strings.ReplaceAll(query, "{{ city_filter }}", "AND city = ?")
+		args = append(args, city)
+	} else {
+		query = strings.ReplaceAll(query, "{{ city_filter }}", "")
+	}
+
+	if db == "snowflake" {
+		row := database.SnowflakeDB.QueryRow(query, args...)
+		var totalTrips int
+		var avgDuration, avgDistance, avgWaitTime float64
+		err := row.Scan(&totalTrips, &avgDuration, &avgDistance, &avgWaitTime)
+		if err != nil {
+			fmt.Println("Error querying Snowflake:", err)
+			return result
+		}
+		result["total_trips"] = totalTrips
+		result["avg_duration"] = avgDuration
+		result["avg_distance"] = avgDistance
+		result["avg_wait_time"] = avgWaitTime
+	} else {
+		err := database.SingleStoreDB.Raw(query, args...).Scan(&result).Error
+		if err != nil {
+			fmt.Println("Error querying SingleStore:", err)
+			return result
+		}
+	}
+
+	return result
+}
+
+func GetDailyTripStatistics(db string, city string) map[string]interface{} {
+	result := map[string]interface{}{
+		"total_trips":          0,
+		"avg_duration":         0.0,
+		"avg_distance":         0.0,
+		"avg_wait_time":        0.0,
+		"total_trips_change":   0.0,
+		"avg_duration_change":  0.0,
+		"avg_distance_change":  0.0,
+		"avg_wait_time_change": 0.0,
+	}
+
+	var query string
+	var args []interface{}
+
+	if db == "snowflake" {
+		query = `
+			WITH current_day AS (
+				SELECT 
+					COUNT(*) as total_trips,
+					AVG(DATEDIFF('second', request_time, dropoff_time)) as avg_duration,
+					AVG(distance) as avg_distance,
+					AVG(DATEDIFF('second', request_time, accept_time)) as avg_wait_time
+				FROM trips
+				WHERE status = 'completed'
+					AND DATE(request_time) = CURRENT_DATE()
+					{{ city_filter }}
+			),
+			previous_day AS (
+				SELECT 
+					COUNT(*) as total_trips,
+					AVG(DATEDIFF('second', request_time, dropoff_time)) as avg_duration,
+					AVG(distance) as avg_distance,
+					AVG(DATEDIFF('second', request_time, accept_time)) as avg_wait_time
+				FROM trips
+				WHERE status = 'completed'
+					AND DATE(request_time) = DATEADD(day, -1, CURRENT_DATE())
+					{{ city_filter }}
+			)
+			SELECT 
+				c.total_trips,
+				c.avg_duration,
+				c.avg_distance,
+				c.avg_wait_time,
+				COALESCE((c.total_trips - p.total_trips) / NULLIF(p.total_trips, 0) * 100, 0) as total_trips_change,
+				COALESCE((c.avg_duration - p.avg_duration) / NULLIF(p.avg_duration, 0) * 100, 0) as avg_duration_change,
+				COALESCE((c.avg_distance - p.avg_distance) / NULLIF(p.avg_distance, 0) * 100, 0) as avg_distance_change,
+				COALESCE((c.avg_wait_time - p.avg_wait_time) / NULLIF(p.avg_wait_time, 0) * 100, 0) as avg_wait_time_change
+			FROM current_day c, previous_day p
+		`
+	} else {
+		query = `
+			WITH current_day AS (
+				SELECT 
+					COUNT(*) as total_trips,
+					AVG(TIMESTAMPDIFF(SECOND, request_time, dropoff_time)) as avg_duration,
+					AVG(distance) as avg_distance,
+					AVG(TIMESTAMPDIFF(SECOND, request_time, accept_time)) as avg_wait_time
+				FROM trips
+				WHERE status = 'completed'
+					AND DATE(request_time) = CURDATE()
+					{{ city_filter }}
+			),
+			previous_day AS (
+				SELECT 
+					COUNT(*) as total_trips,
+					AVG(TIMESTAMPDIFF(SECOND, request_time, dropoff_time)) as avg_duration,
+					AVG(distance) as avg_distance,
+					AVG(TIMESTAMPDIFF(SECOND, request_time, accept_time)) as avg_wait_time
+				FROM trips
+				WHERE status = 'completed'
+					AND DATE(request_time) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+					{{ city_filter }}
+			)
+			SELECT 
+				c.total_trips,
+				c.avg_duration,
+				c.avg_distance,
+				c.avg_wait_time,
+				COALESCE((c.total_trips - p.total_trips) / NULLIF(p.total_trips, 0) * 100, 0) as total_trips_change,
+				COALESCE((c.avg_duration - p.avg_duration) / NULLIF(p.avg_duration, 0) * 100, 0) as avg_duration_change,
+				COALESCE((c.avg_distance - p.avg_distance) / NULLIF(p.avg_distance, 0) * 100, 0) as avg_distance_change,
+				COALESCE((c.avg_wait_time - p.avg_wait_time) / NULLIF(p.avg_wait_time, 0) * 100, 0) as avg_wait_time_change
+			FROM current_day c, previous_day p
+		`
+	}
+
+	// Replace placeholders based on whether city is provided
+	if city != "" {
+		query = strings.ReplaceAll(query, "{{ city_filter }}", "AND city = ?")
+		args = append(args, city, city)
+	} else {
+		query = strings.ReplaceAll(query, "{{ city_filter }}", "")
+	}
+
+	if db == "snowflake" {
+		row := database.SnowflakeDB.QueryRow(query, args...)
+		var totalTrips sql.NullInt64
+		var avgDuration, avgDistance, avgWaitTime sql.NullFloat64
+		var totalTripsChange, avgDurationChange, avgDistanceChange, avgWaitTimeChange sql.NullFloat64
+		err := row.Scan(&totalTrips, &avgDuration, &avgDistance, &avgWaitTime,
+			&totalTripsChange, &avgDurationChange, &avgDistanceChange, &avgWaitTimeChange)
+		if err != nil {
+			fmt.Println("Error querying Snowflake:", err)
+			return result
+		}
+		result["total_trips"] = totalTrips.Int64
+		result["avg_duration"] = avgDuration.Float64
+		result["avg_distance"] = avgDistance.Float64
+		result["avg_wait_time"] = avgWaitTime.Float64
+		result["total_trips_change"] = totalTripsChange.Float64
+		result["avg_duration_change"] = avgDurationChange.Float64
+		result["avg_distance_change"] = avgDistanceChange.Float64
+		result["avg_wait_time_change"] = avgWaitTimeChange.Float64
+	} else {
+		err := database.SingleStoreDB.Raw(query, args...).Scan(&result).Error
+		if err != nil {
+			fmt.Println("Error querying SingleStore:", err)
+			return result
 		}
 	}
 
