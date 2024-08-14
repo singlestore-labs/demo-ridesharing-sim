@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -16,7 +17,9 @@ func SetupRouter() *gin.Engine {
 		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Authorization"},
 		MaxAge:           12 * time.Hour,
 		AllowCredentials: true,
+		ExposeHeaders:    []string{"*"},
 	}))
+	r.Use(LatencyMiddleware())
 	InitializeRoutes(r)
 	return r
 }
@@ -31,4 +34,23 @@ func InitializeRoutes(router *gin.Engine) {
 	router.GET("/riders", GetRiders)
 	router.GET("/drivers", GetDrivers)
 	router.GET("/cities", GetCities)
+}
+
+type latencyWriter struct {
+	gin.ResponseWriter
+	start time.Time
+}
+
+func (w *latencyWriter) WriteHeader(code int) {
+	latency := time.Since(w.start)
+	w.Header().Set("X-Query-Latency", fmt.Sprintf("%d", latency.Microseconds()))
+	w.ResponseWriter.WriteHeader(code)
+}
+
+func LatencyMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		writer := &latencyWriter{ResponseWriter: c.Writer, start: time.Now()}
+		c.Writer = writer
+		c.Next()
+	}
 }

@@ -31,11 +31,16 @@ export default function TotalStatistics() {
 
   const getTripStats = async () => {
     setTripStats(null);
+    setLatency(0);
     const cityParam = city === "All" ? "" : city;
     const response = await axios.get(
       `${BACKEND_URL}/trips/statistics?database=${database}&city=${cityParam}`,
     );
     setTripStats(response.data);
+    const latencyHeader = response.headers["x-query-latency"];
+    if (latencyHeader) {
+      setLatency(parseInt(latencyHeader));
+    }
   };
 
   const formatTripCount = (count: number) => {

@@ -16,13 +16,16 @@ export function DatabaseResultLabel({
   latency,
 }: DatabaseResultLabelProps) {
   const getLatencyString = (latency: number) => {
-    if (latency < 1000) {
-      return `${latency}ms`;
-    } else if (latency < 60000) {
-      return `${(latency / 1000).toFixed(2)}s`;
+    const latencyMs = latency / 1000; // Convert microseconds to milliseconds
+    if (latencyMs < 1) {
+      return `${latency}µs`;
+    } else if (latencyMs < 1000) {
+      return `${latencyMs.toFixed(2)}ms`;
+    } else if (latencyMs < 60000) {
+      return `${(latencyMs / 1000).toFixed(2)}s`;
     } else {
-      const minutes = Math.floor(latency / 60000);
-      const seconds = ((latency % 60000) / 1000).toFixed(2);
+      const minutes = Math.floor(latencyMs / 60000);
+      const seconds = ((latencyMs % 60000) / 1000).toFixed(2);
       return `${minutes}m ${seconds}s`;
     }
   };
