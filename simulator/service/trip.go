@@ -15,8 +15,7 @@ import (
 
 func RequestRide(userID string, city string) string {
 	lat, long := GetLocationForRider(userID)
-	tripDistance := config.Faker.RandomFloat(1, 100, 16000)
-	destLat, destLong := GenerateCoordinateWithinDistanceInCity(city, lat, long, tripDistance)
+	destLat, destLong := GenerateCoordinateInCity(city)
 	if destLat == 0 && destLong == 0 {
 		return ""
 	}

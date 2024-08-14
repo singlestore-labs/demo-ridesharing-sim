@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 	"simulator/config"
 	"strings"
-	"time"
 
 	"github.com/paulmach/orb"
 	"github.com/paulmach/orb/geojson"
@@ -26,25 +25,6 @@ func GenerateCoordinateInCity(city string) (float64, float64) {
 		point := orb.Point{lng, lat}
 		if planar.PolygonContains(polygons[city], point) {
 			return lat, lng
-		}
-	}
-}
-
-func GenerateCoordinateWithinDistanceInCity(city string, lat, lng, distance float64) (float64, float64) {
-	startTime := time.Now()
-	polygon := polygons[city]
-	for {
-		if time.Since(startTime) > 10*time.Second {
-			return 0, 0
-		}
-		angle := rand.Float64() * 2 * math.Pi
-		// Assume distance is in meters, convert to degrees (approximate)
-		distanceDegrees := distance / 111000 // 1 degree ≈ 111km
-		newLat := lat + distanceDegrees*math.Cos(angle)
-		newLng := lng + distanceDegrees*math.Sin(angle)/math.Cos(lat*math.Pi/180)
-		point := orb.Point{newLng, newLat}
-		if planar.PolygonContains(polygon, point) {
-			return newLat, newLng
 		}
 	}
 }
