@@ -13,9 +13,18 @@ import axios from "axios";
 import { toast } from "sonner";
 import { useTheme } from "@/components/theme-provider";
 import Header from "./components/header";
-import { useCity, useDatabase, useRefreshInterval } from "@/lib/store";
+import {
+  setDriverLatency,
+  setDrivers,
+  setRiderLatency,
+  setRiders,
+  useCity,
+  useDatabase,
+  useRefreshInterval,
+} from "@/lib/store";
 import { Toolbar } from "./components/toolbar";
 import { CurrentTripStatus } from "./components/dashboard/current-trip-status";
+import MapLegend from "./components/dashboard/map-legend";
 mapboxgl.accessToken = MAPBOX_TOKEN;
 
 function DashboardPage() {
@@ -105,6 +114,14 @@ function DashboardPage() {
       const response = await axios.get(
         `${BACKEND_URL}/${endpoint}?db=${selectedDatabase}&city=${cityParam}`,
       );
+      const latencyHeader = response.headers["x-query-latency"];
+      if (latencyHeader) {
+        if (endpoint === "riders") {
+          setRiderLatency(parseInt(latencyHeader));
+        } else if (endpoint === "drivers") {
+          setDriverLatency(parseInt(latencyHeader));
+        }
+      }
       return response.data;
     } catch (error) {
       console.error(`Error fetching ${endpoint}:`, error);
@@ -161,6 +178,7 @@ function DashboardPage() {
     if (!map.current) return;
 
     const riders = await getData("riders");
+    setRiders(riders);
 
     const requestedRiders = createGeoJSON(riders, "requested");
     updateMapLayer(
@@ -183,6 +201,7 @@ function DashboardPage() {
     if (!map.current) return;
 
     const drivers = await getData("drivers");
+    setDrivers(drivers);
 
     const availableDrivers = createGeoJSON(drivers, "available");
     updateMapLayer(
@@ -206,6 +225,9 @@ function DashboardPage() {
       <div className="absolute left-0 top-0 z-10 flex w-full flex-col items-start gap-4 p-4">
         <Header currentPage="dashboard" />
         <CurrentTripStatus refreshInterval={refreshInterval} />
+      </div>
+      <div className="absolute bottom-4 left-4 z-10">
+        <MapLegend />
       </div>
       <div className="absolute bottom-4 right-4 z-10">
         <Toolbar />

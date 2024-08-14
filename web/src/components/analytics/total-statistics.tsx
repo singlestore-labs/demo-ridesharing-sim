@@ -9,7 +9,7 @@ import axios from "axios";
 import { useState, useCallback, useEffect } from "react";
 import { toast } from "sonner";
 import { Skeleton } from "../ui/skeleton";
-import { DatabaseResultLabel } from "../ui/database-label";
+import { DatabaseResultLabel } from "../ui/database-result-label";
 
 interface TripStats {
   avg_distance: number;

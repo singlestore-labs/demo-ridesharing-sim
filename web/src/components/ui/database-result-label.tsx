@@ -1,10 +1,7 @@
-import {
-  SINGLESTORE_PURPLE_500,
-  SINGLESTORE_PURPLE_700,
-} from "@/consts/config";
+import { SINGLESTORE_PURPLE_500 } from "@/consts/config";
 import { SnowflakeSmallLogo } from "../logo/snowflake-small";
 import { SingleStoreSmallLogo } from "../logo/singlestore-small";
-import { SingleStoreLogo } from "../logo/singlestore";
+import { getLatencyString } from "@/lib/utils";
 
 export interface DatabaseResultLabelProps {
   database: string;
@@ -15,21 +12,6 @@ export function DatabaseResultLabel({
   database,
   latency,
 }: DatabaseResultLabelProps) {
-  const getLatencyString = (latency: number) => {
-    const latencyMs = latency / 1000; // Convert microseconds to milliseconds
-    if (latencyMs < 1) {
-      return `${latency}µs`;
-    } else if (latencyMs < 1000) {
-      return `${latencyMs.toFixed(2)}ms`;
-    } else if (latencyMs < 60000) {
-      return `${(latencyMs / 1000).toFixed(2)}s`;
-    } else {
-      const minutes = Math.floor(latencyMs / 60000);
-      const seconds = ((latencyMs % 60000) / 1000).toFixed(2);
-      return `${minutes}m ${seconds}s`;
-    }
-  };
-
   const getDatabaseString = (database: string) => {
     if (database === "snowflake") {
       return "Snowflake";

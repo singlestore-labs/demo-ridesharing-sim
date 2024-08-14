@@ -16,7 +16,7 @@ import {
   faMinus,
 } from "@fortawesome/free-solid-svg-icons";
 import { Skeleton } from "../ui/skeleton";
-import { DatabaseResultLabel } from "../ui/database-label";
+import { DatabaseResultLabel } from "../ui/database-result-label";
 
 interface TripStats {
   total_trips_change: number;
