@@ -13,6 +13,8 @@ import {
   faArrowTrendUp,
   faArrowTrendDown,
 } from "@fortawesome/free-solid-svg-icons";
+import { Skeleton } from "../ui/skeleton";
+import { DatabaseResultLabel } from "../ui/database-label";
 
 interface TripStats {
   total_trips_change: number;
@@ -30,12 +32,14 @@ export default function TodayStatistics() {
   const city = useCity();
 
   const [tripStats, setTripStats] = useState<TripStats | null>(null);
+  const [latency, setLatency] = useState(0);
 
   useEffect(() => {
     getTripStats();
   }, [database, city]);
 
   const getTripStats = async () => {
+    setTripStats(null);
     const cityParam = city === "All" ? "" : city;
     const response = await axios.get(
       `${BACKEND_URL}/trips/statistics/daily?database=${database}&city=${cityParam}`,
@@ -57,18 +61,6 @@ export default function TodayStatistics() {
         )}
         {Math.abs(change / 1).toFixed(1)}%
       </div>
-      //   <Card
-      //     className={`${change > 0 ? "bg-green-500" : "bg-red-500"} border-none`}
-      //   >
-      //     <div className="flex flex-row items-center gap-2 px-1 text-sm text-white">
-      //       {change > 0 ? (
-      //         <FontAwesomeIcon icon={faArrowTrendUp} />
-      //       ) : (
-      //         <FontAwesomeIcon icon={faArrowTrendDown} />
-      //       )}
-      //       {Math.abs(change / 1).toFixed(1)}%
-      //     </div>
-      //   </Card>
     );
   };
 
@@ -87,10 +79,21 @@ export default function TodayStatistics() {
   if (!tripStats)
     return (
       <div>
-        <h4>Today</h4>
+        <div className="flex flex-row items-center justify-between">
+          <h4>Today</h4>
+          <DatabaseResultLabel database={database} latency={latency} />
+        </div>
         <div className="mt-2 flex flex-col gap-4">
-          <div className="flex flex-row flex-wrap gap-4 text-gray-400">
-            Loading...
+          <div className="flex flex-row flex-wrap gap-4">
+            {[1, 2, 3, 4].map((_, index) => (
+              <Card
+                key={index}
+                className="flex flex-col items-center justify-center p-4"
+              >
+                <Skeleton className="h-[20px] w-[100px] rounded-full" />
+                <Skeleton className="mt-4 h-[20px] w-[130px] rounded-full" />
+              </Card>
+            ))}
           </div>
         </div>
       </div>
@@ -98,7 +101,10 @@ export default function TodayStatistics() {
 
   return (
     <div>
-      <h4>Today</h4>
+      <div className="flex flex-row items-center justify-between">
+        <h4>Today</h4>
+        <DatabaseResultLabel database={database} latency={latency} />
+      </div>
       <div className="mt-2 flex flex-col gap-4">
         <div className="flex flex-row flex-wrap gap-4">
           <Card className="flex flex-col items-center justify-center py-2">

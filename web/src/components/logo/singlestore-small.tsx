@@ -1,7 +1,13 @@
 export const SingleStoreSmallLogo = ({ size = 32 }) => {
   return (
     <div style={{ height: `${size}px` }}>
-      <svg viewBox="0 0 102 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg
+        width="100%"
+        height="100%"
+        viewBox="0 0 102 101"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
         <path
           d="M85.1317 46.2917C84.925 47.0117 84.695 47.7251 84.445 48.4251C84.1817 49.1617 83.8984 49.8851 83.5884 50.5984L73.2184 50.3817C73.2184 50.5917 73.2184 50.7984 73.2117 51.0084L101.398 51.5984C101.435 49.9351 101.392 48.2751 101.262 46.6284L85.1284 46.2917H85.1317Z"
           fill="currentColor"

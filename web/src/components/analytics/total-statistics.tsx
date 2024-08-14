@@ -8,6 +8,8 @@ import { useCity, useDatabase } from "@/lib/store";
 import axios from "axios";
 import { useState, useCallback, useEffect } from "react";
 import { toast } from "sonner";
+import { Skeleton } from "../ui/skeleton";
+import { DatabaseResultLabel } from "../ui/database-label";
 
 interface TripStats {
   avg_distance: number;
@@ -21,12 +23,14 @@ export default function TotalStatistics() {
   const city = useCity();
 
   const [tripStats, setTripStats] = useState<TripStats | null>(null);
+  const [latency, setLatency] = useState(0);
 
   useEffect(() => {
     getTripStats();
   }, [database, city]);
 
   const getTripStats = async () => {
+    setTripStats(null);
     const cityParam = city === "All" ? "" : city;
     const response = await axios.get(
       `${BACKEND_URL}/trips/statistics?database=${database}&city=${cityParam}`,
@@ -49,10 +53,21 @@ export default function TotalStatistics() {
   if (!tripStats)
     return (
       <div>
-        <h4>Lifetime Statistics</h4>
+        <div className="flex flex-row items-center justify-between">
+          <h4>Lifetime Statistics</h4>
+          <DatabaseResultLabel database={database} latency={latency} />
+        </div>
         <div className="mt-2 flex flex-col gap-4">
-          <div className="flex flex-row flex-wrap gap-4 text-gray-400">
-            Loading...
+          <div className="flex flex-row flex-wrap gap-4">
+            {[1, 2, 3, 4].map((_, index) => (
+              <Card
+                key={index}
+                className="flex flex-col items-center justify-center p-4"
+              >
+                <Skeleton className="h-[20px] w-[100px] rounded-full" />
+                <Skeleton className="mt-4 h-[20px] w-[130px] rounded-full" />
+              </Card>
+            ))}
           </div>
         </div>
       </div>
@@ -60,7 +75,10 @@ export default function TotalStatistics() {
 
   return (
     <div>
-      <h4>Lifetime Statistics</h4>
+      <div className="flex flex-row items-center justify-between">
+        <h4>Lifetime Statistics</h4>
+        <DatabaseResultLabel database={database} latency={latency} />
+      </div>
       <div className="mt-2 flex flex-col gap-4">
         <div className="flex flex-row flex-wrap gap-4">
           <Card className="flex flex-col items-center justify-center p-4">
@@ -82,7 +100,7 @@ export default function TotalStatistics() {
               className="mt-2 font-medium"
               style={{ color: SINGLESTORE_PURPLE_700 }}
             >
-              Average Distance (km)
+              Avg Distance (km)
             </p>
           </Card>
           <Card className="flex flex-col items-center justify-center p-4">
@@ -93,7 +111,7 @@ export default function TotalStatistics() {
               className="mt-2 font-medium"
               style={{ color: SINGLESTORE_PURPLE_700 }}
             >
-              Average Ride Duration (s)
+              Avg Ride Duration (s)
             </p>
           </Card>
           <Card className="flex flex-col items-center justify-center p-4">
@@ -104,7 +122,7 @@ export default function TotalStatistics() {
               className="mt-2 font-medium"
               style={{ color: SINGLESTORE_PURPLE_700 }}
             >
-              Average Wait Time (s)
+              Avg Wait Time (s)
             </p>
           </Card>
         </div>
