@@ -12,6 +12,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowTrendUp,
   faArrowTrendDown,
+  faArrowRight,
+  faMinus,
 } from "@fortawesome/free-solid-svg-icons";
 import { Skeleton } from "../ui/skeleton";
 import { DatabaseResultLabel } from "../ui/database-label";
@@ -56,13 +58,19 @@ export default function TodayStatistics() {
     return (
       <div
         className={`flex flex-row items-center gap-2 text-sm ${
-          change > 0 ? "text-green-500" : "text-red-500"
+          change > 0
+            ? "text-green-500"
+            : change < 0
+              ? "text-red-500"
+              : "text-gray-400"
         }`}
       >
         {change > 0 ? (
           <FontAwesomeIcon icon={faArrowTrendUp} />
-        ) : (
+        ) : change < 0 ? (
           <FontAwesomeIcon icon={faArrowTrendDown} />
+        ) : (
+          <FontAwesomeIcon icon={faMinus} className="text-gray-400" />
         )}
         {Math.abs(change / 1).toFixed(1)}%
       </div>
