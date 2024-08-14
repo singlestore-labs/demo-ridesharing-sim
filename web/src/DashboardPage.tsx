@@ -41,13 +41,6 @@ function DashboardPage() {
       zoom: 0,
       attributionControl: false,
     });
-    map.current.on("load", () => {
-      flyTo("San Francisco");
-    });
-    // map.current.on("move", () => {
-    //   console.log(map.current?.getCenter());
-    //   console.log(map.current?.getZoom());
-    // });
   });
 
   useEffect(() => {

@@ -116,6 +116,7 @@ func KafkaProduceTrip(trip model.Trip) {
 }
 
 func KafkaProduceRider(rider model.Rider) {
+	rider.CreatedAt = time.Now()
 	rider.ToUTC()
 	jsonRider, err := json.Marshal(rider)
 	if err != nil {
@@ -137,6 +138,7 @@ func KafkaProduceRider(rider model.Rider) {
 }
 
 func KafkaProduceDriver(driver model.Driver) {
+	driver.CreatedAt = time.Now()
 	driver.ToUTC()
 	jsonDriver, err := json.Marshal(driver)
 	if err != nil {
