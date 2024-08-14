@@ -16,7 +16,25 @@ var NumRiders = 100
 var NumDrivers = 70
 
 var City = os.Getenv("CITY")
-var validCities = []string{"San Francisco", "San Jose"}
+var ValidCities = []string{
+	"Cupertino",
+	"Daly City",
+	"Fremont",
+	"Hayward",
+	"Milpitas",
+	"Mountain View",
+	"Oakland",
+	"Palo Alto",
+	"Redwood City",
+	"San Bruno",
+	"San Francisco",
+	"San Jose",
+	"San Leandro",
+	"San Mateo",
+	"Santa Clara",
+	"Sunnyvale",
+	"Union City",
+}
 
 var Faker = faker.New()
 
@@ -39,7 +57,7 @@ func Verify() {
 	if num, err := strconv.ParseInt(numDrivers, 10, 64); err == nil {
 		NumDrivers = int(num)
 	}
-	if !slices.Contains(validCities, City) {
+	if !slices.Contains(ValidCities, City) {
 		log.Println("Invalid city, defaulting to San Francisco")
 		City = "San Francisco"
 	}

@@ -2,10 +2,13 @@ package service
 
 import (
 	"fmt"
+	"log"
 	"math"
 	"math/rand"
 	"os"
 	"path/filepath"
+	"simulator/config"
+	"strings"
 	"time"
 
 	"github.com/paulmach/orb"
@@ -13,24 +16,15 @@ import (
 	"github.com/paulmach/orb/planar"
 )
 
-var sfPolygon orb.Polygon
-var sjPolygon orb.Polygon
+var polygons = map[string]orb.Polygon{}
 
 func GenerateCoordinateInCity(city string) (float64, float64) {
-	bounds := sfPolygon.Bound()
-	polygon := sfPolygon
-	if city == "San Francisco" {
-		bounds = sfPolygon.Bound()
-		polygon = sfPolygon
-	} else if city == "San Jose" {
-		bounds = sjPolygon.Bound()
-		polygon = sjPolygon
-	}
+	bounds := polygons[city].Bound()
 	for {
 		lat := bounds.Min.Lat() + rand.Float64()*(bounds.Max.Lat()-bounds.Min.Lat())
 		lng := bounds.Min.Lon() + rand.Float64()*(bounds.Max.Lon()-bounds.Min.Lon())
 		point := orb.Point{lng, lat}
-		if planar.PolygonContains(polygon, point) {
+		if planar.PolygonContains(polygons[city], point) {
 			return lat, lng
 		}
 	}
@@ -38,12 +32,7 @@ func GenerateCoordinateInCity(city string) (float64, float64) {
 
 func GenerateCoordinateWithinDistanceInCity(city string, lat, lng, distance float64) (float64, float64) {
 	startTime := time.Now()
-	polygon := sfPolygon
-	if city == "San Francisco" {
-		polygon = sfPolygon
-	} else if city == "San Jose" {
-		polygon = sjPolygon
-	}
+	polygon := polygons[city]
 	for {
 		if time.Since(startTime) > 10*time.Second {
 			return 0, 0
@@ -92,38 +81,19 @@ func GenerateMiddleCoordinates(startLat, startLng, endLat, endLng, intervalDista
 }
 
 func LoadGeoData() {
-	var err error
-	sfPolygon, err = loadSFPolygon()
-	if err != nil {
-		panic(err)
+	for _, city := range config.ValidCities {
+		polygon, err := loadPolygon(city)
+		if err != nil {
+			log.Fatalf("Failed to load polygon for city %s: %v", city, err)
+		}
+		polygons[city] = polygon
 	}
-	sjPolygon, err = loadSJPolygon()
-	if err != nil {
-		panic(err)
-	}
+	log.Println("Loaded polygons for cities:", config.ValidCities)
 }
 
-func loadSFPolygon() (orb.Polygon, error) {
-	data, err := os.ReadFile(filepath.Join("data", "san-francisco.geojson"))
-	if err != nil {
-		return nil, err
-	}
-	fc, err := geojson.UnmarshalFeatureCollection(data)
-	if err != nil {
-		return nil, err
-	}
-	if len(fc.Features) == 0 {
-		return nil, fmt.Errorf("no features found in GeoJSON")
-	}
-	polygon, ok := fc.Features[0].Geometry.(orb.Polygon)
-	if !ok {
-		return nil, fmt.Errorf("first feature is not a polygon")
-	}
-	return polygon, nil
-}
-
-func loadSJPolygon() (orb.Polygon, error) {
-	data, err := os.ReadFile(filepath.Join("data", "san-jose.geojson"))
+func loadPolygon(city string) (orb.Polygon, error) {
+	fileName := strings.ReplaceAll(strings.ToLower(city), " ", "-") + ".geojson"
+	data, err := os.ReadFile(filepath.Join("data", fileName))
 	if err != nil {
 		return nil, err
 	}
