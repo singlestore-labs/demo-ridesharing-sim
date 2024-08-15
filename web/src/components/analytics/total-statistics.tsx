@@ -34,7 +34,7 @@ export default function TotalStatistics() {
     setLatency(0);
     const cityParam = city === "All" ? "" : city;
     const response = await axios.get(
-      `${BACKEND_URL}/trips/statistics?database=${database}&city=${cityParam}`,
+      `${BACKEND_URL}/trips/statistics?db=${database}&city=${cityParam}`,
     );
     setTripStats(response.data);
     const latencyHeader = response.headers["x-query-latency"];

@@ -38,5 +38,10 @@ func connectSnowflake() {
 	if err != nil {
 		log.Fatalf("Failed to ping Snowflake: %v", err)
 	}
+	// Set the session timezone to UTC
+	_, err = SnowflakeDB.Exec("ALTER SESSION SET TIMEZONE = 'UTC'")
+	if err != nil {
+		log.Fatalf("Failed to set session timezone: %v", err)
+	}
 	log.Println("Successfully connected to Snowflake")
 }

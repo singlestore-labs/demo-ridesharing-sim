@@ -62,7 +62,7 @@ export function CurrentTripStatus({ refreshInterval }: CurrentTripStatusProps) {
     setLatency(0);
     const cityParam = city === "All" ? "" : city;
     const response = await axios.get(
-      `${BACKEND_URL}/trips/current/status?database=${database}&city=${cityParam}`,
+      `${BACKEND_URL}/trips/current/status?db=${database}&city=${cityParam}`,
     );
     setTripStats(response.data);
     const latencyHeader = response.headers["x-query-latency"];

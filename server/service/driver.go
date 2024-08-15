@@ -6,7 +6,7 @@ import (
 )
 
 func GetAllDrivers(db string) []model.Driver {
-	var drivers []model.Driver
+	var drivers = make([]model.Driver, 0)
 	if db == "snowflake" {
 		rows, err := database.SnowflakeDB.Query("SELECT * FROM drivers")
 		if err != nil {
@@ -44,7 +44,7 @@ func GetAllDrivers(db string) []model.Driver {
 }
 
 func GetDriversByCity(db string, city string) []model.Driver {
-	var drivers []model.Driver
+	var drivers = make([]model.Driver, 0)
 	if db == "snowflake" {
 		query := "SELECT * FROM drivers WHERE location_city = ?"
 		rows, err := database.SnowflakeDB.Query(query, city)
