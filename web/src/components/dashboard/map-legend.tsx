@@ -2,9 +2,7 @@ import {
   getDriverLatency,
   getRiderLatency,
   useDatabase,
-  useDriverLatency,
   useDrivers,
-  useRiderLatency,
   useRiders,
 } from "@/lib/store";
 import { Card } from "../ui/card";
@@ -16,15 +14,12 @@ import {
 } from "@/consts/config";
 import { DatabaseResultLabel } from "../ui/database-result-label";
 import { getLatencyString } from "@/lib/utils";
-import { useEffect } from "react";
 
 export default function MapLegend() {
   const database = useDatabase();
 
   const riders = useRiders();
-  const riderLatency = useRiderLatency();
   const drivers = useDrivers();
-  const driverLatency = useDriverLatency();
 
   const getActiveRiderCount = () => {
     return riders.filter((rider) => rider.status !== "idle").length;
