@@ -26,8 +26,6 @@ export default function TestChart() {
       .then((data) => {
         const now = new Date();
         const hourlyData: { [hour: string]: number } = {};
-
-        // Initialize the last 24 hours with 0 trips in local time
         for (let i = 0; i <= 24; i++) {
           const date = new Date(now.getTime() - i * 60 * 60 * 1000);
           date.setMinutes(0);
@@ -37,7 +35,6 @@ export default function TestChart() {
           hourlyData[hourKey] = 0;
         }
 
-        // Fill in the data from the API response
         data.forEach((item: any) => {
           const localDate = fromZonedTime(
             new Date(item.hourly_interval),
@@ -49,9 +46,6 @@ export default function TestChart() {
           }
         });
 
-        console.log(hourlyData);
-
-        // Convert the hourlyData object to an array of objects
         const formattedData = Object.entries(hourlyData).map(
           ([hourKey, trips]) => ({
             hour: hourKey,

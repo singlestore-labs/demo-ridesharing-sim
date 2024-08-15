@@ -513,9 +513,9 @@ func GetMinuteTripCountsLastHour(db, city string) []map[string]interface{} {
 			}
 
 			result := map[string]interface{}{
-				"interval":       minuteInterval,
-				"trip_count":     tripCount,
-				"percent_change": percentChange,
+				"minute_interval": minuteInterval,
+				"trip_count":      tripCount,
+				"percent_change":  percentChange,
 			}
 			results = append(results, result)
 		}
@@ -625,9 +625,9 @@ func GetHourlyTripCountsLastDay(db, city string) []map[string]interface{} {
 			}
 
 			result := map[string]interface{}{
-				"interval":       hourlyInterval,
-				"trip_count":     tripCount,
-				"percent_change": percentChange,
+				"hourly_interval": hourlyInterval,
+				"trip_count":      tripCount,
+				"percent_change":  percentChange,
 			}
 			results = append(results, result)
 		}
@@ -737,7 +737,7 @@ func GetDailyTripCountsLastWeek(db, city string) []map[string]interface{} {
 			}
 
 			result := map[string]interface{}{
-				"interval":       dailyInterval,
+				"daily_interval": dailyInterval,
 				"trip_count":     tripCount,
 				"percent_change": percentChange,
 			}
