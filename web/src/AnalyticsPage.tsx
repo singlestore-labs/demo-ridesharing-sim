@@ -4,6 +4,7 @@ import TotalStatistics from "./components/analytics/total-statistics";
 import TodayStatistics from "./components/analytics/today-statistics";
 import HourlyChart from "./components/analytics/hourly-chart";
 import DailyChart from "./components/analytics/daily-chart";
+import MinuteChart from "./components/analytics/minute-chart";
 
 const AnalyticsPage = () => {
   return (
@@ -16,6 +17,7 @@ const AnalyticsPage = () => {
         <TotalStatistics />
       </div>
       <div className="flex flex-wrap items-center gap-4 p-4">
+        <MinuteChart />
         <HourlyChart />
         <DailyChart />
       </div>
