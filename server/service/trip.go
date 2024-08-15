@@ -10,6 +10,7 @@ import (
 func GetCities(db string) []string {
 	var cities []string
 	if db == "snowflake" {
+		_, _ = database.SnowflakeDB.Exec("ALTER SESSION SET TIMEZONE = 'UTC'")
 		rows, err := database.SnowflakeDB.Query("SELECT DISTINCT city FROM trips")
 		if err != nil {
 			return []string{}
@@ -51,6 +52,7 @@ func GetCurrentTripStatus(db string) map[string]interface{} {
 	}
 
 	if db == "snowflake" {
+		_, _ = database.SnowflakeDB.Exec("ALTER SESSION SET TIMEZONE = 'UTC'")
 		query := `
 			SELECT 'trips' as entity, status, COUNT(*) as count
 				FROM trips
@@ -141,6 +143,7 @@ func GetCurrentTripStatusByCity(db string, city string) map[string]interface{} {
 	}
 
 	if db == "snowflake" {
+		_, _ = database.SnowflakeDB.Exec("ALTER SESSION SET TIMEZONE = 'UTC'")
 		query := `
 			SELECT 'trips' as entity, status, COUNT(*) as count
 				FROM trips
@@ -234,6 +237,7 @@ func GetTotalTripStatistics(db string, city string) map[string]interface{} {
 	var args []interface{}
 
 	if db == "snowflake" {
+		_, _ = database.SnowflakeDB.Exec("ALTER SESSION SET TIMEZONE = 'UTC'")
 		query = `
 			SELECT 
 				COUNT(*) as total_trips,
@@ -305,6 +309,7 @@ func GetDailyTripStatistics(db string, city string) map[string]interface{} {
 	var args []interface{}
 
 	if db == "snowflake" {
+		_, _ = database.SnowflakeDB.Exec("ALTER SESSION SET TIMEZONE = 'UTC'")
 		query = `
 			WITH current_day AS (
 				SELECT 
@@ -419,6 +424,7 @@ func GetMinuteTripCountsLastHour(db, city string) []map[string]interface{} {
 	var args []interface{}
 
 	if db == "snowflake" {
+		_, _ = database.SnowflakeDB.Exec("ALTER SESSION SET TIMEZONE = 'UTC'")
 		query = `
 			WITH minute_counts AS (
 				SELECT 
@@ -537,6 +543,7 @@ func GetHourlyTripCountsLastDay(db, city string) []map[string]interface{} {
 	var args []interface{}
 
 	if db == "snowflake" {
+		_, _ = database.SnowflakeDB.Exec("ALTER SESSION SET TIMEZONE = 'UTC'")
 		query = `
 			WITH hourly_counts AS (
 				SELECT 
@@ -649,6 +656,7 @@ func GetDailyTripCountsLastWeek(db, city string) []map[string]interface{} {
 	var args []interface{}
 
 	if db == "snowflake" {
+		_, _ = database.SnowflakeDB.Exec("ALTER SESSION SET TIMEZONE = 'UTC'")
 		query = `
 			WITH daily_counts AS (
 				SELECT 
