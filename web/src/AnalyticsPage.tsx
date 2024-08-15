@@ -2,7 +2,8 @@ import Header from "@/components/header";
 import { Toolbar } from "@/components/toolbar";
 import TotalStatistics from "./components/analytics/total-statistics";
 import TodayStatistics from "./components/analytics/today-statistics";
-import TestChart from "./components/analytics/test-chart";
+import HourlyChart from "./components/analytics/hourly-chart";
+import DailyChart from "./components/analytics/daily-chart";
 
 const AnalyticsPage = () => {
   return (
@@ -15,7 +16,8 @@ const AnalyticsPage = () => {
         <TotalStatistics />
       </div>
       <div className="flex flex-wrap items-center gap-4 p-4">
-        <TestChart />
+        <HourlyChart />
+        <DailyChart />
       </div>
       <div className="absolute bottom-4 right-4 z-10">
         <Toolbar />
