@@ -18,8 +18,8 @@ module.exports = {
     },
     extend: {
       colors: {
-        "gr-pink": "#e105a3",
-        "gr-purple": "#8412fc",
+        "singlestore-purple": "#820DDF",
+        "snowflake-blue": "#29B5E8",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

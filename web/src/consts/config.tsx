@@ -9,6 +9,8 @@ export const SINGLESTORE_PURPLE_900 = "#360061";
 export const WAITING_FOR_PICKUP_COLOR = "#aaa0ad";
 export const EN_ROUTE_COLOR = "#5ccc7a";
 
+export const SNOWFLAKE_BLUE = "#29B5E8";
+
 export const CITY_COORDINATES = {
   "San Francisco": {
     coordinates: [-122.44489106138639, 37.7655327257536],
