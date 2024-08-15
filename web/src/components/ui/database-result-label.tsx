@@ -12,13 +12,13 @@ export function DatabaseResultLabel({
   database,
   latency,
 }: DatabaseResultLabelProps) {
-  const getDatabaseString = (database: string) => {
-    if (database === "snowflake") {
-      return "Snowflake";
-    } else if (database === "singlestore") {
-      return "SingleStore";
-    }
-  };
+  // const getDatabaseString = (database: string) => {
+  //   if (database === "snowflake") {
+  //     return "Snowflake";
+  //   } else if (database === "singlestore") {
+  //     return "SingleStore";
+  //   }
+  // };
 
   const getDatabaseLogo = (database: string) => {
     if (database === "snowflake") {

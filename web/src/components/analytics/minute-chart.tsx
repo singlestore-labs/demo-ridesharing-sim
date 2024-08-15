@@ -12,11 +12,11 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "../ui/chart";
-import { Card } from "../ui/card";
-import { DatabaseResultLabel } from "../ui/database-result-label";
-import { format, formatDate } from "date-fns";
-import { toZonedTime, fromZonedTime } from "date-fns-tz";
+} from "@/components/ui/chart";
+import { Card } from "@/components/ui/card";
+import { DatabaseResultLabel } from "@/components/ui/database-result-label";
+import { format } from "date-fns";
+import { fromZonedTime } from "date-fns-tz";
 
 export default function MinuteChart() {
   const database = useDatabase();

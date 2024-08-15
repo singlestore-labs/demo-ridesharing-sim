@@ -1,22 +1,16 @@
-import {
-  BACKEND_URL,
-  SINGLESTORE_PURPLE_500,
-  SINGLESTORE_PURPLE_700,
-} from "@/consts/config";
+import { BACKEND_URL, SINGLESTORE_PURPLE_700 } from "@/consts/config";
 import { Card } from "@/components/ui/card";
 import { useCity, useDatabase } from "@/lib/store";
 import axios from "axios";
-import { useState, useCallback, useEffect } from "react";
-import { toast } from "sonner";
+import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowTrendUp,
   faArrowTrendDown,
-  faArrowRight,
   faMinus,
 } from "@fortawesome/free-solid-svg-icons";
-import { Skeleton } from "../ui/skeleton";
-import { DatabaseResultLabel } from "../ui/database-result-label";
+import { Skeleton } from "@/components/ui/skeleton";
+import { DatabaseResultLabel } from "@/components/ui/database-result-label";
 
 interface TripStats {
   total_trips_change: number;

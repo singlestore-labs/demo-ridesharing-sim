@@ -1,15 +1,10 @@
-import {
-  BACKEND_URL,
-  SINGLESTORE_PURPLE_500,
-  SINGLESTORE_PURPLE_700,
-} from "@/consts/config";
+import { BACKEND_URL, SINGLESTORE_PURPLE_700 } from "@/consts/config";
 import { Card } from "@/components/ui/card";
 import { useCity, useDatabase } from "@/lib/store";
 import axios from "axios";
-import { useState, useCallback, useEffect } from "react";
-import { toast } from "sonner";
-import { Skeleton } from "../ui/skeleton";
-import { DatabaseResultLabel } from "../ui/database-result-label";
+import { useState, useEffect } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { DatabaseResultLabel } from "@/components/ui/database-result-label";
 
 interface TripStats {
   avg_distance: number;
