@@ -18,7 +18,7 @@ import { DatabaseResultLabel } from "../ui/database-result-label";
 import { format } from "date-fns";
 import { fromZonedTime } from "date-fns-tz";
 
-export default function HourlyChart() {
+export default function TripsHourlyChart() {
   const database = useDatabase();
   const city = useCity();
   const [latency, setLatency] = useState(0);

@@ -12,12 +12,13 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "../ui/chart";
-import { Card } from "../ui/card";
-import { DatabaseResultLabel } from "../ui/database-result-label";
+} from "@/components/ui/chart";
+import { Card } from "@/components/ui/card";
+import { DatabaseResultLabel } from "@/components/ui/database-result-label";
 import { format } from "date-fns";
+import { fromZonedTime } from "date-fns-tz";
 
-export default function DailyChart() {
+export default function TripsMinuteChart() {
   const database = useDatabase();
   const city = useCity();
   const [latency, setLatency] = useState(0);
@@ -28,24 +29,29 @@ export default function DailyChart() {
     getData()
       .then((data) => {
         const now = new Date();
-        const dailyData: { [day: string]: number } = {};
-        for (let i = 0; i <= 7; i++) {
-          const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-          const dayKey = format(date, "yyyy-MM-dd");
-          dailyData[dayKey] = 0;
+        const hourlyData: { [hour: string]: number } = {};
+        for (let i = 0; i <= 60; i++) {
+          const date = new Date(now.getTime() - i * 60 * 1000);
+          date.setSeconds(0);
+          date.setMilliseconds(0);
+          const minuteKey = format(date, "yyyy-MM-dd HH:mm:ss");
+          hourlyData[minuteKey] = 0;
         }
 
         data.forEach((item: any) => {
-          if (item.daily_interval in dailyData) {
-            dailyData[item.daily_interval] = item.trip_count;
+          const localDate = fromZonedTime(
+            new Date(item.minute_interval),
+            "UTC",
+          );
+          const minuteKey = format(localDate, "yyyy-MM-dd HH:mm:ss");
+          if (minuteKey in hourlyData) {
+            hourlyData[minuteKey] = item.trip_count;
           }
         });
 
-        console.log(dailyData);
-
-        const formattedData = Object.entries(dailyData).map(
-          ([dayKey, trips]) => ({
-            day: dayKey,
+        const formattedData = Object.entries(hourlyData).map(
+          ([minuteKey, trips]) => ({
+            minute: minuteKey,
             trips: trips,
           }),
         );
@@ -59,7 +65,7 @@ export default function DailyChart() {
     setLatency(0);
     let cityParam = city === "All" ? "" : city;
     const response = await axios.get(
-      `${BACKEND_URL}/trips/last/week?db=${database}&city=${cityParam}`,
+      `${BACKEND_URL}/trips/last/hour?db=${database}&city=${cityParam}`,
     );
     const latencyHeader = response.headers["x-query-latency"];
     if (latencyHeader) {
@@ -79,22 +85,16 @@ export default function DailyChart() {
   return (
     <Card className="h-[400px] w-[600px]">
       <div className="flex flex-row items-center justify-between p-2">
-        <h4>Ride requests per day</h4>
+        <h4>Ride requests per minute</h4>
         <DatabaseResultLabel database={database} latency={latency} />
       </div>
       <ChartContainer config={chartConfig} className="h-full w-full pb-10 pr-4">
         <BarChart data={chartData}>
           <XAxis
-            dataKey="day"
-            label={{ value: "Day", position: "bottom" }}
-            tickFormatter={(tick) => {
-              const [year, month, day] = tick.split("-");
-              return format(
-                new Date(parseInt(year), parseInt(month) - 1, parseInt(day)),
-                "M/d",
-              );
-            }}
-            interval={0}
+            dataKey="minute"
+            label={{ value: "Minute", position: "bottom" }}
+            tickFormatter={(tick) => format(new Date(tick), "h:mm a")}
+            interval={9}
           />
           <YAxis
             dataKey="trips"
@@ -106,17 +106,9 @@ export default function DailyChart() {
           <ChartTooltip
             content={
               <ChartTooltipContent
-                labelFormatter={(value) => {
-                  const [year, month, day] = value.split("-");
-                  return format(
-                    new Date(
-                      parseInt(year),
-                      parseInt(month) - 1,
-                      parseInt(day),
-                    ),
-                    "M/d",
-                  );
-                }}
+                labelFormatter={(value) =>
+                  format(new Date(value), "M/d/yy h:mm a")
+                }
               />
             }
             cursor={false}
