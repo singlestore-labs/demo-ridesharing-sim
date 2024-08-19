@@ -62,7 +62,8 @@ func AcceptRide(tripID string, driverID string) {
 	trip := GetTrip(tripID)
 	trip.DriverID = driverID
 	trip.Status = "accepted"
-	trip.AcceptTime = time.Now()
+	randomDelay := time.Duration(config.Faker.IntBetween(1, 5)) * time.Second
+	trip.AcceptTime = time.Now().Add(randomDelay)
 	UpsertTrip(trip)
 }
 
