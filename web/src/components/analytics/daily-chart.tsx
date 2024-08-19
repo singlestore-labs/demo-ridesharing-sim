@@ -15,8 +15,7 @@ import {
 } from "../ui/chart";
 import { Card } from "../ui/card";
 import { DatabaseResultLabel } from "../ui/database-result-label";
-import { format, formatDate } from "date-fns";
-import { toZonedTime, fromZonedTime } from "date-fns-tz";
+import { format } from "date-fns";
 
 export default function DailyChart() {
   const database = useDatabase();

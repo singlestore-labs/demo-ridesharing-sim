@@ -15,8 +15,8 @@ import {
 } from "../ui/chart";
 import { Card } from "../ui/card";
 import { DatabaseResultLabel } from "../ui/database-result-label";
-import { format, formatDate } from "date-fns";
-import { toZonedTime, fromZonedTime } from "date-fns-tz";
+import { format } from "date-fns";
+import { fromZonedTime } from "date-fns-tz";
 
 export default function HourlyChart() {
   const database = useDatabase();
