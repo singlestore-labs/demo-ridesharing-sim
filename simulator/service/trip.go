@@ -62,13 +62,17 @@ func AcceptRide(tripID string, driverID string) {
 	trip := GetTrip(tripID)
 	trip.DriverID = driverID
 	trip.Status = "accepted"
-	randomDelay := time.Duration(config.Faker.IntBetween(1, 5)) * time.Second
+	randomDelay := time.Duration(config.Faker.IntBetween(1000, 6000)) * time.Millisecond
 	trip.AcceptTime = time.Now().Add(randomDelay)
 	UpsertTrip(trip)
 }
 
 func StartTripLoop(tripID string) {
 	trip := GetTrip(tripID)
+	if trip.AcceptTime.After(time.Now()) {
+		waitDuration := time.Until(trip.AcceptTime)
+		time.Sleep(waitDuration)
+	}
 	// driver to pickup
 	lat, long := GetLocationForDriver(trip.DriverID)
 	path := GenerateMiddleCoordinates(lat, long, trip.PickupLat, trip.PickupLong, 10)
