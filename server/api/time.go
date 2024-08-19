@@ -17,3 +17,9 @@ func GetHourlyAvgWaitTimeLastDay(c *gin.Context) {
 	city := c.Query("city")
 	c.JSON(200, service.GetHourlyAvgWaitTimeLastDay(db, city))
 }
+
+func GetDailyAvgWaitTimeLastWeek(c *gin.Context) {
+	db := c.Query("db")
+	city := c.Query("city")
+	c.JSON(200, service.GetDailyAvgWaitTimeLastWeek(db, city))
+}
