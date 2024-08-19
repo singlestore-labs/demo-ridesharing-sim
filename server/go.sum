@@ -152,6 +152,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/rogpeppe/go-internal v1.9.0 h1:73kH8U+JUqXU8lRuOHeVHaa/SZPifC7BkcraZVejAe8=
 github.com/rogpeppe/go-internal v1.9.0/go.mod h1:WtVeX8xhTBvf0smdhujwtBcq4Qrzq/fJaraNFVN+nFs=
+github.com/singlestore-labs/gorm-singlestore v1.0.0 h1:n/2NgHcXRBd31gsUs7s/CzhA4TrTxAWuShxx0fN1pU0=
+github.com/singlestore-labs/gorm-singlestore v1.0.0/go.mod h1:Bxq1nC7Gr1I7Hb0tS4bF/aLp3/EqD64kY79LeBKYKBQ=
 github.com/sirupsen/logrus v1.9.0 h1:trlNQbNUG3OdDrDil03MCb1H2o9nJ1x4/5LYw7byDE0=
 github.com/sirupsen/logrus v1.9.0/go.mod h1:naHLuLoDiP4jHNo9R0sCBMtWGeIprob74mVsIT4qYEQ=
 github.com/snowflakedb/gosnowflake v1.11.0 h1:qyqunGCVyq/Qyx40KQT+6sJ1CAGuuG2qv3WiCTLTctI=

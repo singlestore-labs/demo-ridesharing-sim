@@ -8,6 +8,7 @@ import (
 func GetAllRiders(db string) []model.Rider {
 	var riders = make([]model.Rider, 0)
 	if db == "snowflake" {
+		database.SetupSnowflakeQuery()
 		rows, err := database.SnowflakeDB.Query("SELECT * FROM riders")
 		if err != nil {
 			return nil
@@ -45,6 +46,7 @@ func GetAllRiders(db string) []model.Rider {
 func GetRidersByCity(db string, city string) []model.Rider {
 	var riders = make([]model.Rider, 0)
 	if db == "snowflake" {
+		database.SetupSnowflakeQuery()
 		query := "SELECT * FROM riders WHERE location_city = ?"
 		rows, err := database.SnowflakeDB.Query(query, city)
 		if err != nil {
