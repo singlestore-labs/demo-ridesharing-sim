@@ -16,7 +16,10 @@ const AnalyticsPage = () => {
         <TodayStatistics />
         <TotalStatistics />
       </div>
-      <div className="flex flex-wrap items-center gap-4 p-4">
+      <div className="flex flex-col items-start p-4">
+        <h4>Trends</h4>
+      </div>
+      <div className="flex flex-wrap items-center gap-4 px-4">
         <MinuteChart />
         <HourlyChart />
         <DailyChart />
