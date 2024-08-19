@@ -24,8 +24,6 @@ WORKDIR /
 COPY --from=builder /simulator /simulator
 COPY --from=builder /app/data /data
 
-# COPY --from=builder /drive-service-account.json /drive-service-account.json
-
 COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
 ENV TZ=America/Los_Angeles
 

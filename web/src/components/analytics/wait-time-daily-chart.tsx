@@ -17,7 +17,7 @@ import { Card } from "@/components/ui/card";
 import { DatabaseResultLabel } from "@/components/ui/database-result-label";
 import { format } from "date-fns";
 
-export default function TripsDailyChart() {
+export default function WaitTimeDailyChart() {
   const database = useDatabase();
   const city = useCity();
   const [latency, setLatency] = useState(0);
@@ -37,27 +37,27 @@ export default function TripsDailyChart() {
 
         data.forEach((item: any) => {
           if (item.daily_interval in dailyData) {
-            dailyData[item.daily_interval] = item.trip_count;
+            dailyData[item.daily_interval] = item.avg_wait_time;
           }
         });
 
         const formattedData = Object.entries(dailyData).map(
-          ([dayKey, trips]) => ({
+          ([dayKey, time]) => ({
             day: dayKey,
-            trips: trips,
+            time: time,
           }),
         );
         formattedData.reverse();
         setChartData(formattedData as any);
       })
-      .catch((error) => console.error("Error fetching trip data:", error));
+      .catch((error) => console.error("Error fetching wait time data:", error));
   }, [database, city]);
 
   const getData = async () => {
     setLatency(0);
     let cityParam = city === "All" ? "" : city;
     const response = await axios.get(
-      `${BACKEND_URL}/trips/last/week?db=${database}&city=${cityParam}`,
+      `${BACKEND_URL}/wait-time/last/week?db=${database}&city=${cityParam}`,
     );
     const latencyHeader = response.headers["x-query-latency"];
     if (latencyHeader) {
@@ -67,8 +67,8 @@ export default function TripsDailyChart() {
   };
 
   const chartConfig = {
-    trips: {
-      label: "Trips",
+    time: {
+      label: "Wait Time",
       color:
         database === "singlestore" ? SINGLESTORE_PURPLE_700 : SNOWFLAKE_BLUE,
     },
@@ -77,7 +77,7 @@ export default function TripsDailyChart() {
   return (
     <Card className="h-[400px] w-[600px]">
       <div className="flex flex-row items-center justify-between p-2">
-        <h4>Ride requests per day</h4>
+        <h4>Avg rider wait time per day</h4>
         <DatabaseResultLabel database={database} latency={latency} />
       </div>
       <ChartContainer config={chartConfig} className="h-full w-full pb-10 pr-4">
@@ -95,12 +95,12 @@ export default function TripsDailyChart() {
             interval={0}
           />
           <YAxis
-            dataKey="trips"
+            dataKey="time"
             tickFormatter={(tick) => {
-              return tick.toLocaleString();
+              return tick.toLocaleString() + "s";
             }}
           />
-          <Bar dataKey="trips" fill="var(--color-trips)" radius={4} />
+          <Bar dataKey="time" fill="var(--color-time)" radius={4} />
           <ChartTooltip
             content={
               <ChartTooltipContent
