@@ -37,12 +37,12 @@ export default function DailyChart() {
         }
 
         data.forEach((item: any) => {
-          const localDate = fromZonedTime(new Date(item.daily_interval), "UTC");
-          const dayKey = format(localDate, "yyyy-MM-dd");
-          if (dayKey in dailyData) {
-            dailyData[dayKey] = item.trip_count;
+          if (item.daily_interval in dailyData) {
+            dailyData[item.daily_interval] = item.trip_count;
           }
         });
+
+        console.log(dailyData);
 
         const formattedData = Object.entries(dailyData).map(
           ([dayKey, trips]) => ({
@@ -88,7 +88,13 @@ export default function DailyChart() {
           <XAxis
             dataKey="day"
             label={{ value: "Day", position: "bottom" }}
-            tickFormatter={(tick) => format(new Date(tick), "M/d")}
+            tickFormatter={(tick) => {
+              const [year, month, day] = tick.split("-");
+              return format(
+                new Date(parseInt(year), parseInt(month) - 1, parseInt(day)),
+                "M/d",
+              );
+            }}
             interval={0}
           />
           <YAxis
@@ -101,7 +107,17 @@ export default function DailyChart() {
           <ChartTooltip
             content={
               <ChartTooltipContent
-                labelFormatter={(value) => format(new Date(value), "M/d/yy")}
+                labelFormatter={(value) => {
+                  const [year, month, day] = value.split("-");
+                  return format(
+                    new Date(
+                      parseInt(year),
+                      parseInt(month) - 1,
+                      parseInt(day),
+                    ),
+                    "M/d",
+                  );
+                }}
               />
             }
             cursor={false}

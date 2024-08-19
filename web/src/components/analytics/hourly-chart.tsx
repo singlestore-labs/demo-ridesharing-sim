@@ -108,7 +108,9 @@ export default function HourlyChart() {
             content={
               <ChartTooltipContent
                 labelFormatter={(value) =>
-                  format(new Date(value), "M/d/yy h:mm a")
+                  value && !isNaN(new Date(value).getTime())
+                    ? format(new Date(value), "M/d/yy h:mm a")
+                    : value
                 }
               />
             }
