@@ -45,3 +45,8 @@ func connectSnowflake() {
 	}
 	log.Println("Successfully connected to Snowflake")
 }
+
+func SetupSnowflakeQuery() {
+	_, _ = SnowflakeDB.Exec("ALTER SESSION SET TIMEZONE = 'UTC'")
+	_, _ = SnowflakeDB.Exec("ALTER SESSION SET USE_CACHED_RESULT = FALSE")
+}
