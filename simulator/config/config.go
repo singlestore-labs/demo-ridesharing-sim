@@ -39,15 +39,13 @@ var ValidCities = []string{
 var Faker = faker.New()
 
 var Kafka = struct {
-	Broker         string
-	SchemaRegistry string
-	SASLUsername   string
-	SASLPassword   string
+	Broker       string
+	SASLUsername string
+	SASLPassword string
 }{
-	Broker:         os.Getenv("KAFKA_BROKER"),
-	SchemaRegistry: os.Getenv("KAFKA_SCHEMA_REGISTRY"),
-	SASLUsername:   os.Getenv("KAFKA_SASL_USERNAME"),
-	SASLPassword:   os.Getenv("KAFKA_SASL_PASSWORD"),
+	Broker:       os.Getenv("KAFKA_BROKER"),
+	SASLUsername: os.Getenv("KAFKA_SASL_USERNAME"),
+	SASLPassword: os.Getenv("KAFKA_SASL_PASSWORD"),
 }
 
 func Verify() {

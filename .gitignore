@@ -1,5 +1,5 @@
 .env
-kafka_key.p8
-kafka_key.pub
+rsa_key.p8
+rsa_key.pub
 
 .DS_Store
