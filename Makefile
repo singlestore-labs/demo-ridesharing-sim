@@ -9,3 +9,7 @@ start:
 
 stop:
 	docker compose down
+
+keygen:
+	chmod +x kafka/keygen.sh
+	./kafka/keygen.sh
