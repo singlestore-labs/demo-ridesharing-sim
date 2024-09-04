@@ -1,4 +1,6 @@
-export const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
+export const MAPBOX_TOKEN =
+  import.meta.env.VITE_MAPBOX_TOKEN ||
+  "pk.eyJ1IjoiYmhhcmF0MTAzMSIsImEiOiJja3JtbGM0eTM3dXZnMnZtZjFudW5rbGF0In0.tt92RoFtBcmGqoQOchCoag";
 export const BACKEND_URL =
   import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 

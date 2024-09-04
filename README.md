@@ -50,7 +50,8 @@
 
 1. Run `make build` to build the docker images.
 2. Run `docker compose up` to start everything.
-3. You should see kafka topics being created and trips being generated.
+3. Copy `example.env` to `.env` and modify the values.
+4. You should see kafka topics being created and trips being generated.
 
 ### Run the frontend
 
@@ -67,7 +68,10 @@
 ### SingleStore Setup
 
 1. [Sign up](https://www.singlestore.com/cloud-trial/) for the SingleStore Free Shared Tier.
-2. Create a public/private key pair for the kafka connector to use.
+2. Create a new workspace and import the `singlestore.ipynb` notebook.
+3. Edit the `CONFIG` and `CREDENTIALS` JSON in the 5th code cell so SingleStore can connect to your iceberg catalog.
+4. Edit the `CONFIG` and `CREDENTIALS` JSON in cells 7, 10, and 13 so SingleStore can connect to your kafka broker.
+5. Run the notebook
 
 ## Resources
 
