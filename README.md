@@ -142,11 +142,9 @@ The simulator has three main constructs:
   - `dropoff_long`: The longitude of the dropoff location.
   - `city`: The city the trip is in.
 
-Using the provided configuration variables, the simulator will spawn in a number of riders and drivers at a random location in the specified city. 
+Using the provided configuration variables, the simulator will spawn in a number of riders and drivers at a random location in the specified city. Since there are a lot of cities in the bay area, we combined some of them together to create the following 16 cities.
 
-Since there are a lot of cities in the bay area, we combined some of them together to create the following 16 cities.
-
-<img alt="Bay area geojson map" src="/assets/map.png" width="49%">
+<img alt="Bay area geojson map" src="/assets/map.png">
 
 These cities are defined by GeoJSON polygons in the `simulator/data/` directory. Adding a new city is as simple as adding a new GeoJSON file, and updating the `ValidCities` array in `simulator/config/config.go`. Check out the `LoadGeoData()` function in `simulator/service/geo.go` to see how this array is used to load the polygons.
 
@@ -189,6 +187,8 @@ The following endpoints are available:
 - `/riders`: Get current rider information.
 - `/drivers`: Get current driver information.
 - `/cities`: Get list of cities.
+
+Not that the `city` query parameter can be used to filter results for a specific city in each of these requests.
 
 ### Configuration
 
