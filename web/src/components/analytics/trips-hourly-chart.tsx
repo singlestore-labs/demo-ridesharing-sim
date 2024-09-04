@@ -3,9 +3,9 @@ import {
   SINGLESTORE_PURPLE_700,
   SNOWFLAKE_BLUE,
 } from "@/consts/config";
-import { useCity, useDatabase } from "@/lib/store";
+import { useCity, useDatabase, useRefreshInterval } from "@/lib/store";
 import axios from "axios";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { XAxis, YAxis, Bar, BarChart } from "recharts";
 import {
   ChartConfig,
@@ -23,57 +23,62 @@ export default function TripsHourlyChart() {
   const city = useCity();
   const [latency, setLatency] = useState(0);
   const [chartData, setChartData] = useState([]);
+  const refreshInterval = useRefreshInterval();
 
-  useEffect(() => {
-    setLatency(0);
-    getData()
-      .then((data) => {
-        const now = new Date();
-        const hourlyData: { [hour: string]: number } = {};
-        for (let i = 0; i <= 24; i++) {
-          const date = new Date(now.getTime() - i * 60 * 60 * 1000);
-          date.setMinutes(0);
-          date.setSeconds(0);
-          date.setMilliseconds(0);
-          const hourKey = format(date, "yyyy-MM-dd HH:mm:ss");
-          hourlyData[hourKey] = 0;
-        }
-
-        data.forEach((item: any) => {
-          const localDate = fromZonedTime(
-            new Date(item.hourly_interval),
-            "UTC",
-          );
-          const hourKey = format(localDate, "yyyy-MM-dd HH:mm:ss");
-          if (hourKey in hourlyData) {
-            hourlyData[hourKey] = item.trip_count;
-          }
-        });
-
-        const formattedData = Object.entries(hourlyData).map(
-          ([hourKey, trips]) => ({
-            hour: hourKey,
-            trips: trips,
-          }),
-        );
-        formattedData.reverse();
-        setChartData(formattedData as any);
-      })
-      .catch((error) => console.error("Error fetching trip data:", error));
-  }, [database, city]);
-
-  const getData = async () => {
+  const getData = useCallback(async () => {
     setLatency(0);
     let cityParam = city === "All" ? "" : city;
-    const response = await axios.get(
-      `${BACKEND_URL}/trips/last/day?db=${database}&city=${cityParam}`,
-    );
-    const latencyHeader = response.headers["x-query-latency"];
-    if (latencyHeader) {
-      setLatency(parseInt(latencyHeader));
+    try {
+      const response = await axios.get(
+        `${BACKEND_URL}/trips/last/day?db=${database}&city=${cityParam}`,
+      );
+      const latencyHeader = response.headers["x-query-latency"];
+      if (latencyHeader) {
+        setLatency(parseInt(latencyHeader));
+      }
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching trip data:", error);
+      return [];
     }
-    return response.data;
-  };
+  }, [database, city]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getData();
+      const now = new Date();
+      const hourlyData: { [hour: string]: number } = {};
+      for (let i = 0; i <= 24; i++) {
+        const date = new Date(now.getTime() - i * 60 * 60 * 1000);
+        date.setMinutes(0);
+        date.setSeconds(0);
+        date.setMilliseconds(0);
+        const hourKey = format(date, "yyyy-MM-dd HH:mm:ss");
+        hourlyData[hourKey] = 0;
+      }
+
+      data.forEach((item: any) => {
+        const localDate = fromZonedTime(new Date(item.hourly_interval), "UTC");
+        const hourKey = format(localDate, "yyyy-MM-dd HH:mm:ss");
+        if (hourKey in hourlyData) {
+          hourlyData[hourKey] = item.trip_count;
+        }
+      });
+
+      const formattedData = Object.entries(hourlyData).map(
+        ([hourKey, trips]) => ({
+          hour: hourKey,
+          trips: trips,
+        }),
+      );
+      formattedData.reverse();
+      setChartData(formattedData as any);
+    };
+
+    fetchData();
+    const intervalId = setInterval(fetchData, refreshInterval);
+    return () => clearInterval(intervalId);
+  }, [getData, refreshInterval]);
 
   const chartConfig = {
     trips: {

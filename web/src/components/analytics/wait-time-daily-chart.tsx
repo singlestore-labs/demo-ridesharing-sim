@@ -3,9 +3,9 @@ import {
   SINGLESTORE_PURPLE_700,
   SNOWFLAKE_BLUE,
 } from "@/consts/config";
-import { useCity, useDatabase } from "@/lib/store";
+import { useCity, useDatabase, useRefreshInterval } from "@/lib/store";
 import axios from "axios";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { XAxis, YAxis, Bar, BarChart } from "recharts";
 import {
   ChartConfig,
@@ -22,49 +22,55 @@ export default function WaitTimeDailyChart() {
   const city = useCity();
   const [latency, setLatency] = useState(0);
   const [chartData, setChartData] = useState([]);
+  const refreshInterval = useRefreshInterval();
 
-  useEffect(() => {
-    setLatency(0);
-    getData()
-      .then((data) => {
-        const now = new Date();
-        const dailyData: { [day: string]: number } = {};
-        for (let i = 0; i <= 7; i++) {
-          const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-          const dayKey = format(date, "yyyy-MM-dd");
-          dailyData[dayKey] = 0;
-        }
-
-        data.forEach((item: any) => {
-          if (item.daily_interval in dailyData) {
-            dailyData[item.daily_interval] = item.avg_wait_time;
-          }
-        });
-
-        const formattedData = Object.entries(dailyData).map(
-          ([dayKey, time]) => ({
-            day: dayKey,
-            time: time,
-          }),
-        );
-        formattedData.reverse();
-        setChartData(formattedData as any);
-      })
-      .catch((error) => console.error("Error fetching wait time data:", error));
-  }, [database, city]);
-
-  const getData = async () => {
+  const getData = useCallback(async () => {
     setLatency(0);
     let cityParam = city === "All" ? "" : city;
-    const response = await axios.get(
-      `${BACKEND_URL}/wait-time/last/week?db=${database}&city=${cityParam}`,
-    );
-    const latencyHeader = response.headers["x-query-latency"];
-    if (latencyHeader) {
-      setLatency(parseInt(latencyHeader));
+    try {
+      const response = await axios.get(
+        `${BACKEND_URL}/wait-time/last/week?db=${database}&city=${cityParam}`,
+      );
+      const latencyHeader = response.headers["x-query-latency"];
+      if (latencyHeader) {
+        setLatency(parseInt(latencyHeader));
+      }
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching wait time data:", error);
+      return [];
     }
-    return response.data;
-  };
+  }, [database, city]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getData();
+      const now = new Date();
+      const dailyData: { [day: string]: number } = {};
+      for (let i = 0; i <= 7; i++) {
+        const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+        const dayKey = format(date, "yyyy-MM-dd");
+        dailyData[dayKey] = 0;
+      }
+
+      data.forEach((item: any) => {
+        if (item.daily_interval in dailyData) {
+          dailyData[item.daily_interval] = item.avg_wait_time;
+        }
+      });
+
+      const formattedData = Object.entries(dailyData).map(([dayKey, time]) => ({
+        day: dayKey,
+        time: time,
+      }));
+      formattedData.reverse();
+      setChartData(formattedData as any);
+    };
+
+    fetchData();
+    const intervalId = setInterval(fetchData, refreshInterval);
+    return () => clearInterval(intervalId);
+  }, [getData, refreshInterval]);
 
   const chartConfig = {
     time: {

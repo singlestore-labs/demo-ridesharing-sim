@@ -177,7 +177,7 @@ function DashboardPage() {
   const getRiders = async () => {
     if (!map.current) return;
 
-    const riders = await getData("riders");
+    const riders = (await getData("riders")) || [];
     setRiders(riders);
 
     const requestedRiders = createGeoJSON(riders, "requested");
@@ -200,7 +200,7 @@ function DashboardPage() {
   const getDrivers = async () => {
     if (!map.current) return;
 
-    const drivers = await getData("drivers");
+    const drivers = (await getData("drivers")) || [];
     setDrivers(drivers);
 
     const availableDrivers = createGeoJSON(drivers, "available");

@@ -1,8 +1,8 @@
 import { BACKEND_URL, SINGLESTORE_PURPLE_700 } from "@/consts/config";
 import { Card } from "@/components/ui/card";
-import { useCity, useDatabase } from "@/lib/store";
+import { useCity, useDatabase, useRefreshInterval } from "@/lib/store";
 import axios from "axios";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DatabaseResultLabel } from "@/components/ui/database-result-label";
 
@@ -16,27 +16,33 @@ interface TripStats {
 export default function TotalStatistics() {
   const database = useDatabase();
   const city = useCity();
+  const refreshInterval = useRefreshInterval();
 
   const [tripStats, setTripStats] = useState<TripStats | null>(null);
   const [latency, setLatency] = useState(0);
 
-  useEffect(() => {
-    getTripStats();
-  }, [database, city]);
-
-  const getTripStats = async () => {
-    setTripStats(null);
+  const getTripStats = useCallback(async () => {
     setLatency(0);
     const cityParam = city === "All" ? "" : city;
-    const response = await axios.get(
-      `${BACKEND_URL}/trips/statistics?db=${database}&city=${cityParam}`,
-    );
-    setTripStats(response.data);
-    const latencyHeader = response.headers["x-query-latency"];
-    if (latencyHeader) {
-      setLatency(parseInt(latencyHeader));
+    try {
+      const response = await axios.get(
+        `${BACKEND_URL}/trips/statistics?db=${database}&city=${cityParam}`,
+      );
+      setTripStats(response.data);
+      const latencyHeader = response.headers["x-query-latency"];
+      if (latencyHeader) {
+        setLatency(parseInt(latencyHeader));
+      }
+    } catch (error) {
+      console.error("Error fetching trip statistics:", error);
     }
-  };
+  }, [database, city]);
+
+  useEffect(() => {
+    getTripStats();
+    const intervalId = setInterval(getTripStats, refreshInterval);
+    return () => clearInterval(intervalId);
+  }, [getTripStats, refreshInterval]);
 
   const formatTripCount = (count: number) => {
     if (count >= 1000000000) {
