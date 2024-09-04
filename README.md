@@ -157,6 +157,13 @@ At each step, the simulator will push the updated rider, driver, and trip object
 - `ridesharing-sim-drivers`: The driver objects.
 - `ridesharing-sim-trips`: The trip objects.
 
+One thing to note is that riders and drivers are designed to be ephemeral, as they are generated on every run of the simulator. Their respective tables are only used to provide the real-time location and status of the rider and driver. They are not used to store historical data. The trips table is the only table that stores historical data. You may need to cleanup orphaned riders and drivers from time to time. You can do so with the following queries (works on both Snowflake and SingleStore):
+
+```sql
+DELETE FROM RIDERS WHERE id NOT IN (SELECT DISTINCT rider_id FROM TRIPS);
+DELETE FROM DRIVERS WHERE id NOT IN (SELECT DISTINCT driver_id FROM TRIPS);
+```
+
 ### Configuration
 
 Environment variables can be specified by creating a `.env` file in root directory. The following variables are supported:
