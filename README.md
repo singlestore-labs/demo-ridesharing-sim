@@ -100,6 +100,8 @@ We'll then demonstrate how to seamlessly ingest trip data from Snowflake into Si
 
 ## Simulator
 
+<img alt="Bay area geojson map" src="/assets/map.png">
+
 ### Configuration
 
 Environment variables can be specified by creating a `.env` file in root directory. The following variables are supported:
@@ -136,24 +138,16 @@ If any of the SingleStore variables are blank, the API server will skip connecti
 
 ## React Dashboard
 
-<table>
-  <tr>
-    <td width="50%">
-      <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="/assets/dashboard_dark.png">
-        <source media="(prefers-color-scheme: light)" srcset="/assets/dashboard_light.png">
-        <img alt="React dashboard maps page" src="/assets/dashboard_light.png" width="100%">
-      </picture>
-    </td>
-    <td width="50%">
-      <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="/assets/analytics_dark.png">
-        <source media="(prefers-color-scheme: light)" srcset="/assets/analytics_light.png">
-        <img alt="React dashboard analytics page" src="/assets/analytics_light.png" width="100%">
-      </picture>
-    </td>
-  </tr>
-</table>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="/assets/dashboard_dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="/assets/dashboard_light.png">
+  <img alt="React dashboard maps page" src="/assets/dashboard_light.png" width="49%">
+</picture>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="/assets/analytics_dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="/assets/analytics_light.png">
+  <img alt="React dashboard analytics page" src="/assets/analytics_light.png" width="49%">
+</picture>
 
 Our React dashboard consists of two main pages:
 - A maps page that shows the current location of all rides and drivers on the map, as well as a summary of currently active trips.
@@ -165,7 +159,7 @@ The database being queried can be changed by selecting the appropriate logo in t
 
 Environment variables can be specified by creating a `.env` file in the `web/` directory. The following variables are supported:
 
-- `VITE_BACKEND_URL`: The URL of the API server. (default: `http://localhost:8000`))
+- `VITE_BACKEND_URL`: The URL of the API server. (default: `http://localhost:8000`)
 
 ## Resources
 
