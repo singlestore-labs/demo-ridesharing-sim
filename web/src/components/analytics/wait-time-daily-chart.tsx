@@ -26,7 +26,7 @@ export default function WaitTimeDailyChart() {
 
   const getData = useCallback(async () => {
     setLatency(0);
-    let cityParam = city === "All" ? "" : city;
+    const cityParam = city === "All" ? "" : city;
     try {
       const response = await axios.get(
         `${BACKEND_URL}/wait-time/last/week?db=${database}&city=${cityParam}`,

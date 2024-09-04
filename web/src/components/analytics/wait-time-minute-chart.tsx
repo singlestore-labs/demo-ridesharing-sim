@@ -27,7 +27,7 @@ export default function WaitTimeMinuteChart() {
 
   const getData = useCallback(async () => {
     setLatency(0);
-    let cityParam = city === "All" ? "" : city;
+    const cityParam = city === "All" ? "" : city;
     try {
       const response = await axios.get(
         `${BACKEND_URL}/wait-time/last/hour?db=${database}&city=${cityParam}`,
