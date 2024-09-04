@@ -17,10 +17,6 @@ This demo consists of three main components:
 - [API Server](#api-server)
 - [React Dashboard](#react-dashboard)
 
-The simulator generates ride-sharing trip data and pushes it to a Kafka topic. The Snowflake Kafka Connector is used to pull this data into Snowflake tables. This data is queried by an API Server that exposes a simple REST interface. The React Dashboard calls this API and provides visualizations of rider, driver, and trip information.
-
-Then we'll look at how to easily ingest all of our trip data from Snowflake into SingleStore using iceberg tables, enabling zero-ETL ingestion at virtually no cost. SingleStore Pipelines are used to pull in updates from the same kafka topics, enabling our dashboard to show analytics in real-time.
-
 Our simulator generates realistic ride-sharing trip data and streams it to a Kafka topic. Using the Snowflake Kafka Connector, this data is then ingested into Snowflake tables. An API Server queries this data and exposes it through a RESTful interface. Finally, a React Dashboard consumes this API to provide dynamic visualizations of rider, driver, and trip information.
 
 We'll then demonstrate how to seamlessly ingest trip data from Snowflake into SingleStore using Iceberg tables, achieving zero-ETL ingestion with minimal overhead. By leveraging SingleStore Pipelines to consume updates from our existing Kafka topics, we enable real-time analytics on our dashboard, showcasing SingleStore's ability to handle high-throughput, low-latency data processing and querying.
@@ -104,21 +100,72 @@ We'll then demonstrate how to seamlessly ingest trip data from Snowflake into Si
 
 ## Simulator
 
+### Configuration
+
+Environment variables can be specified by creating a `.env` file in root directory. The following variables are supported:
+
+- `NUM_RIDERS`: The number of riders to generate. (default: `100`)
+- `NUM_DRIVERS`: The number of drivers to generate. (default: `70`)
+- `CITY`: The city to generate trips in. (default: `San Francisco`)
+- `KAFKA_BROKER`: The kafka broker to connect to.
+- `KAFKA_SASL_USERNAME`: The username of the kafka broker.
+- `KAFKA_SASL_PASSWORD`: The password of the kafka broker.
+
+Note that `NUM_RIDERS`, `NUM_DRIVERS`, and `CITY` are set for each simulator instance in the docker compose file, and will not be pulled from the `.env` file.
+
 ## API Server
+
+### Configuration
+
+Environment variables can be specified by creating a `.env` file in root directory. The following variables are supported:
+
+- `PORT`: The port the API server will run on. (default: `8000`)
+- `SINGLESTORE_HOST`: The host of the SingleStore instance.
+- `SINGLESTORE_PORT`: The port of the SingleStore instance.
+- `SINGLESTORE_USERNAME`: The username of the SingleStore instance.
+- `SINGLESTORE_PASSWORD`: The password of the SingleStore instance.
+- `SINGLESTORE_DATABASE`: The database of the SingleStore instance.
+- `SNOWFLAKE_ACCOUNT`: The account of the Snowflake instance.
+- `SNOWFLAKE_USER`: The user of the Snowflake instance.
+- `SNOWFLAKE_PASSWORD`: The password of the Snowflake instance.
+- `SNOWFLAKE_WAREHOUSE`: The warehouse of the Snowflake instance.
+- `SNOWFLAKE_DATABASE`: The database of the Snowflake instance.
+- `SNOWFLAKE_SCHEMA`: The schema of the Snowflake instance.
+
+If any of the SingleStore variables are blank, the API server will skip connecting to SingleStore. Similarly, if any of the Snowflake variables are blank, the API server will skip connecting to Snowflake.
 
 ## React Dashboard
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="/assets/dashboard_dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="/assets/dashboard_light.png">
-  <img alt="React dashboard maps page" src="/assets/dashboard_light.png">
-</picture>
+<table>
+  <tr>
+    <td width="50%">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="/assets/dashboard_dark.png">
+        <source media="(prefers-color-scheme: light)" srcset="/assets/dashboard_light.png">
+        <img alt="React dashboard maps page" src="/assets/dashboard_light.png" width="100%">
+      </picture>
+    </td>
+    <td width="50%">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="/assets/analytics_dark.png">
+        <source media="(prefers-color-scheme: light)" srcset="/assets/analytics_light.png">
+        <img alt="React dashboard analytics page" src="/assets/analytics_light.png" width="100%">
+      </picture>
+    </td>
+  </tr>
+</table>
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="/assets/analytics_dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="/assets/analytics_light.png">
-  <img alt="React dashboard maps page" src="/assets/analytics_light.png">
-</picture>
+Our React dashboard consists of two main pages:
+- A maps page that shows the current location of all rides and drivers on the map, as well as a summary of currently active trips.
+- An analytics page that shows a variety of analytics on the ride data, such as the number of rides per hour and the average rider wait time.
+
+The database being queried can be changed by selecting the appropriate logo in the header of the dashboard, and the refresh interval can be changed by selecting the appropriate option in the toolbar on the bottom right.
+
+### Configuration
+
+Environment variables can be specified by creating a `.env` file in the `web/` directory. The following variables are supported:
+
+- `VITE_BACKEND_URL`: The URL of the API server. (default: `http://localhost:8000`))
 
 ## Resources
 
