@@ -32,12 +32,19 @@
 2. Create a Snowflake connector using the private key you generated in the previous step.
 3. Set the topic to table mapping to `ridesharing-sim-trips:TRIPS_STAGE,ridesharing-sim-riders:RIDERS_STAGE,ridesharing-sim-drivers:DRIVERS_STAGE`.
 4. Set the ingestion method to `SNOWPIPE_STREAMING` and the input format to `JSON`.
-5. Set the flush time to 1 second.
-6. Create a new API Key to connect to the kafka broker.
+5. Make sure that "enable schematization" and "include createtime in metadata" are set to true.
+6. Set the flush time to 1 second.
+7. Create a new API Key to connect to the kafka broker.
+
+### Verify the kafka connector
+
+1. The kafka connector should have created the tables `RIDERS_STAGE`, `DRIVERS_STAGE`, and `TRIPS_STAGE`.
+2. Run lines 27-30 in the Snowflake worksheet to verify that the kafka connector created the tables.
 
 ### Create Snowflake tables
 
-1. Run lines 32-231 in the Snowflake worksheet. This will create a `RIDERS`, `DRIVERS`, and `TRIPS` table, and sets up tasks to merge in data from the stage tables every minute. 
+1. Now that our staging tables are created, we are going to create the tables where our final data will land in.
+2. Run lines 32-231 in the Snowflake worksheet. This will create a `RIDERS`, `DRIVERS`, and `TRIPS` table, and sets up Snowpipe tasks to merge in data from the stage tables every minute.
    - This is required because the default Snowflake Kafka connector only supports inserting data into Snowflake tables, not updating them.
    - Our simulator relies on upserting data into the `TRIPS` table to update the status of a trip, as well as updating the `RIDERS` and `DRIVERS` tables to send location and status updates.
 
@@ -52,6 +59,10 @@
 2. Run `docker compose up` to start everything.
 3. Copy `example.env` to `.env` and modify the values.
 4. You should see kafka topics being created and trips being generated.
+5. The API server should be running on port 8000.
+
+> [!NOTE]
+> The simulator currently uses SASL_PLAIN authentication to connect to the kafka broker. If you want to use SCRAM, you'll need to modify the code in `simulator/exporter/kafka.go`.
 
 ### Run the frontend
 
