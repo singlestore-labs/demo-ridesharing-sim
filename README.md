@@ -62,7 +62,7 @@
 5. The API server should be running on port 8000.
 
 > [!NOTE]
-> The simulator currently uses SASL_PLAIN authentication to connect to the kafka broker. If you want to use SCRAM, you'll need to modify the code in `simulator/exporter/kafka.go`.
+> The simulator currently uses `SASL_PLAIN` authentication to connect to the kafka broker. If you want to use `SCRAM`, you'll need to modify the code in `simulator/exporter/kafka.go`.
 
 ### Run the frontend
 
@@ -73,16 +73,20 @@
 
 ### Create iceberg table
 
-1. Run lines 261-274 to create an external volume on S3 for the iceberg table. Make sure to follow the AWS instructions to create the required roles and policies.
-2. Then run lines 276-286 to create the iceberg table and copy over the data from the `TRIPS` table.
+1. Now that we have some data in our trips table, let's look at how to perform a Zero-ETL ingest of this data into SingleStore without burning any Snowflake credits.
+2. Run lines 261-274 to create an external volume on S3 for the iceberg table. Make sure to follow the AWS instructions to create the required roles and policies.
+3. Then run lines 276-286 to create the iceberg table and copy over the data from the `TRIPS` table.
+4. We should now have a `TRIPS_ICE` table with its catalog on S3.
 
 ### SingleStore Setup
 
-1. [Sign up](https://www.singlestore.com/cloud-trial/) for the SingleStore Free Shared Tier.
+1. [Sign up](https://www.singlestore.com/cloud-trial/) for the SingleStore Cloud Trial. You will need at least a S-00 workspace for this demo.
 2. Create a new workspace and import the `singlestore.ipynb` notebook.
 3. Edit the `CONFIG` and `CREDENTIALS` JSON in the 5th code cell so SingleStore can connect to your iceberg catalog.
 4. Edit the `CONFIG` and `CREDENTIALS` JSON in cells 7, 10, and 13 so SingleStore can connect to your kafka broker.
-5. Run the notebook
+5. Run the whole notebook.
+6. Your tables should now be pulling in trip information from our kafka topics.
+7. Open the React frontend, and select the SingleStore logo in the header. You should be able to see analytics from the trip data updating in real-time.
 
 ## Resources
 
