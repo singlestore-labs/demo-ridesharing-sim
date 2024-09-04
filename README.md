@@ -89,7 +89,7 @@ We'll then demonstrate how to seamlessly ingest trip data from Snowflake into Si
 
 ### SingleStore Setup
 
-1. [Sign up](https://www.singlestore.com/cloud-trial/) for the SingleStore Cloud Trial. You will need at least a S-00 workspace for this demo.
+1. [Sign up](https://www.singlestore.com/cloud-trial/) for the SingleStore Cloud Trial. You will need at least a S-2 workspace for this demo.
 2. Create a new workspace and import the `singlestore.ipynb` notebook.
 3. Edit the `CONFIG` and `CREDENTIALS` JSON in the 5th code cell so SingleStore can connect to your iceberg catalog.
 4. Edit the `CONFIG` and `CREDENTIALS` JSON in cells 7, 10, and 13 so SingleStore can connect to your kafka broker.
@@ -160,8 +160,9 @@ At each step, the simulator will push the updated rider, driver, and trip object
 One thing to note is that riders and drivers are designed to be ephemeral, as they are generated on every run of the simulator. Their respective tables are only used to provide the real-time location and status of the rider and driver. They are not used to store historical data. The trips table is the only table that stores historical data. You may need to cleanup orphaned riders and drivers from time to time. You can do so with the following queries (works on both Snowflake and SingleStore):
 
 ```sql
-DELETE FROM RIDERS WHERE id NOT IN (SELECT DISTINCT rider_id FROM TRIPS);
-DELETE FROM DRIVERS WHERE id NOT IN (SELECT DISTINCT driver_id FROM TRIPS);
+DELETE FROM riders;
+DELETE FROM drivers;
+DELETE FROM trips WHERE status != 'completed';
 ```
 
 ### Configuration
@@ -196,6 +197,8 @@ The following endpoints are available:
 - `/cities`: Get list of cities.
 
 Not that the `city` query parameter can be used to filter results for a specific city in each of these requests.
+
+Under the hood, the API server makes connections to both SingleStore and Snowflake, and runs the appropriate queries against the selected database. You can see the various queries defined for each database in the `server/service/` directory.
 
 ### Configuration
 
