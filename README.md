@@ -14,7 +14,7 @@
 
 ## Getting Started
 
-### Snowflake Setup
+### Snowflake setup
 
 1. Create a new SQL worksheet on Snowflake and copy in the contents of `snowflake.sql`.
 2. Run the first 20 lines in the worksheet to setup the required workspace, database, user, and roles.
@@ -26,7 +26,7 @@
 4. Copy the output from the `ALTER USER` line and replace line 22 in `snowflake.sql`.
 5. Copy the output from the `PRIVATE_KEY` line and hold onto it for the next step.
 
-### Kafka Setup
+### Kafka setup
 
 1. For this demo, we're using [Confluent Cloud](https://www.confluent.io/) as our kafka broker. You can sign up for a free trial [here](https://www.confluent.io/get-started/).
 2. Create a Snowflake connector using the private key you generated in the previous step.
@@ -59,16 +59,15 @@
 3. Open your browser and navigate to `http://localhost:5173` to view the frontend.
 4. You should now be able to see the trips being generated in the frontend.
 
+### Create iceberg table
+
+1. Run lines 261-274 to create an external volume on S3 for the iceberg table. Make sure to follow the AWS instructions to create the required roles and policies.
+2. Then run lines 276-286 to create the iceberg table and copy over the data from the `TRIPS` table.
+
 ### SingleStore Setup
 
 1. [Sign up](https://www.singlestore.com/cloud-trial/) for the SingleStore Free Shared Tier.
 2. Create a public/private key pair for the kafka connector to use.
-```
-openssl genrsa 4096 | openssl pkcs8 -topk8 -inform PEM -out kafka_key.p8 -nocrypt
-openssl rsa -in kafka_key.p8 -pubout -out kafka_key.pub
-cat kafka_key.pub | grep -v KEY- | tr -d '\012'
-3. Copy the output and replace the placeholder public key in `snowflake.sql`
-```
 
 ## Resources
 
