@@ -100,7 +100,64 @@ We'll then demonstrate how to seamlessly ingest trip data from Snowflake into Si
 
 ## Simulator
 
-<img alt="Bay area geojson map" src="/assets/map.png">
+The simulator has three main constructs:
+- `Rider`: A person who requests a ride.
+  - `id`: A unique identifier for the rider.
+  - `first_name`: The first name of the rider.
+  - `last_name`: The last name of the rider.
+  - `email`: The email of the rider.
+  - `phone_number`: The phone number of the rider.
+  - `date_of_birth`: The date of birth of the rider.
+  - `created_at`: The time the rider was created.
+  - `location_city`: The city the rider is currently in.
+  - `location_lat`: The latitude of the rider's current location.
+  - `location_long`: The longitude of the rider's current location.
+  - `status`: The status of the rider.
+- `Driver`: A person who provides a ride.
+  - `id`: A unique identifier for the driver.
+  - `first_name`: The first name of the driver.
+  - `last_name`: The last name of the driver.
+  - `email`: The email of the driver.
+  - `phone_number`: The phone number of the driver.
+  - `date_of_birth`: The date of birth of the driver.
+  - `created_at`: The time the driver was created.
+  - `location_city`: The city the driver is currently in.
+  - `location_lat`: The latitude of the driver's current location.
+  - `location_long`: The longitude of the driver's current location.
+  - `status`: The status of the driver.
+- `Trip`: A ride given by a specific driver to a specific rider.
+  - `id`: A unique identifier for the trip.
+  - `driver_id`: The ID of the driver who is providing the ride.
+  - `rider_id`: The ID of the rider who is requesting the ride.
+  - `status`: The status of the trip.
+  - `request_time`: The time the trip was requested.
+  - `accept_time`: The time the trip was accepted.
+  - `pickup_time`: The time the rider was picked up.
+  - `dropoff_time`: The time the rider was dropped off.
+  - `fare`: The fare of the trip.
+  - `distance`: The distance of the trip.
+  - `pickup_lat`: The latitude of the pickup location.
+  - `pickup_long`: The longitude of the pickup location.
+  - `dropoff_lat`: The latitude of the dropoff location.
+  - `dropoff_long`: The longitude of the dropoff location.
+  - `city`: The city the trip is in.
+
+Using the provided configuration variables, the simulator will spawn in a number of riders and drivers at a random location in the specified city. 
+
+Since there are a lot of cities in the bay area, we combined some of them together to create the following 16 cities.
+
+<img alt="Bay area geojson map" src="/assets/map.png" width="49%">
+
+These cities are defined by GeoJSON polygons in the `simulator/data/` directory. Adding a new city is as simple as adding a new GeoJSON file, and updating the `ValidCities` array in `simulator/config/config.go`. Check out the `LoadGeoData()` function in `simulator/service/geo.go` to see how this array is used to load the polygons.
+
+Each rider and driver run a loop in their own goroutines. The riders will request a ride to random location in the city, and wait for the ride to be accepted. This request creates a `Trip` object with the status set to `requested` and the `pickup_lat`, `pickup_long`, `dropoff_lat`, `dropoff_long` fields set to the rides's initial and requested coordinates. Drivers will accept the nearest ride request based on the pickup coordinates, setting the status to `accepted`. Then the driver proceeds to the rider's location by creating a straight line path between their current location and the rider's location, moving approximately 10 meters every 100 milliseconds. Once they have picked up the rider, the trips status is updated to `en_route`, and the driver continues to the dropoff location in the same manner. Once the rider is dropped off, the trip is marked as `completed`. The timestamps for each of these status updates is recorded in the appropriate fields.
+
+The loop continues, and the rider and driver will continue to request and accept rides. Random delays are adding between each step in this loop to add some variance to the simulation.
+
+At each step, the simulator will push the updated rider, driver, and trip objects to the following kafka topics:
+- `ridesharing-sim-riders`: The rider objects.
+- `ridesharing-sim-drivers`: The driver objects.
+- `ridesharing-sim-trips`: The trip objects.
 
 ### Configuration
 
@@ -116,6 +173,22 @@ Environment variables can be specified by creating a `.env` file in root directo
 Note that `NUM_RIDERS`, `NUM_DRIVERS`, and `CITY` are set for each simulator instance in the docker compose file, and will not be pulled from the `.env` file.
 
 ## API Server
+
+The API server exposes a simple RESTful interface to make queries against the SingleStore and Snowflake databases. The database to query can be specified by the `db` query parameter (can be either `singlestore` or `snowflake`). Each endpoint will also return the query latency in microseconds through the `X-Query-Latency` header.
+
+The following endpoints are available:
+- `/trips/current/status`: Get the status breakdown of current active trips.
+- `/trips/statistics`: Get total trip statistics.
+- `/trips/statistics/daily`: Get daily trip statistics.
+- `/trips/last/hour`: Get minute-by-minute trip counts for the last hour.
+- `/trips/last/day`: Get hourly trip counts for the last day.
+- `/trips/last/week`: Get daily trip counts for the last week.
+- `/wait-time/last/hour`: Get minute-by-minute average wait times for the last hour.
+- `/wait-time/last/day`: Get hourly average wait times for the last day.
+- `/wait-time/last/week`: Get daily average wait times for the last week.
+- `/riders`: Get current rider information.
+- `/drivers`: Get current driver information.
+- `/cities`: Get list of cities.
 
 ### Configuration
 
