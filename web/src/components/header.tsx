@@ -28,13 +28,13 @@ export default function Header({ currentPage }: HeaderProps) {
   const navigate = useNavigate();
 
   const getCities = async () => {
-    const response = await axios.get(`${BACKEND_URL}/cities`);
+    const response = await axios.get(`${BACKEND_URL}/cities?db=${database}`);
     setCities(response.data);
   };
 
   useEffect(() => {
     getCities();
-  }, []);
+  }, [database]);
 
   return (
     <Card className="w-full p-2">
