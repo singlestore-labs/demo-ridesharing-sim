@@ -26,22 +26,22 @@ func connectSnowflake() {
 	}
 	dsn, err := sf.DSN(cfg)
 	if err != nil {
-		log.Fatalf("Failed to create DSN: %v", err)
+		log.Printf("Failed to create DSN: %v", err)
 	}
 	// Connect to Snowflake
 	SnowflakeDB, err = sql.Open("snowflake", dsn)
 	if err != nil {
-		log.Fatalf("Failed to connect to Snowflake: %v", err)
+		log.Printf("Failed to connect to Snowflake: %v", err)
 	}
 	// Test the connection
 	err = SnowflakeDB.Ping()
 	if err != nil {
-		log.Fatalf("Failed to ping Snowflake: %v", err)
+		log.Printf("Failed to ping Snowflake: %v", err)
 	}
 	// Set the session timezone to UTC
 	_, err = SnowflakeDB.Exec("ALTER SESSION SET TIMEZONE = 'UTC'")
 	if err != nil {
-		log.Fatalf("Failed to set session timezone: %v", err)
+		log.Printf("Failed to set session timezone: %v", err)
 	}
 	log.Println("Successfully connected to Snowflake")
 }

@@ -21,7 +21,7 @@ func connectSingleStore() {
 
 	db, err := gorm.Open(singlestore.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatalf("failed to connect to singlestore database: %v", err)
+		log.Printf("failed to connect to singlestore database: %v", err)
 	}
 	SingleStoreDB = db
 	log.Println("Successfully connected to SingleStore")

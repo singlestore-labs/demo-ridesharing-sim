@@ -23,6 +23,12 @@ We'll then demonstrate how to seamlessly ingest trip data from Snowflake into Si
 
 ## Getting Started
 
+### Prerequisites
+
+- Docker
+- Golang (optional)
+- Node.js (optional)
+
 ### Snowflake setup
 
 1. Create a new SQL worksheet on Snowflake and copy in the contents of `snowflake.sql`.
@@ -62,23 +68,18 @@ We'll then demonstrate how to seamlessly ingest trip data from Snowflake into Si
 1. If you want to populate the `TRIPS` table with sample data, you can use this [trips.csv](https://bk1031.s3.us-west-2.amazonaws.com/rideshare/trips.csv) file.
 2. There's a placeholder in the Snowflake worksheet (lines 238-259) to load a csv file from an S3 bucket into the `TRIPS` table.
 
-### Run the simulator and server
+### Run the simulator, server, and dashboard
 
 1. Run `make build` to build the docker images.
 2. Run `docker compose up` to start everything.
 3. Copy `example.env` to `.env` and modify the values. You can ignore the SingleStore variables for now.
 4. You should see kafka topics being created and trips being generated.
 5. The API server should be running on port 8000.
+6. The React dashboard should be running on port 8080.
+7. Open your browser and navigate to `http://localhost:8080` to view the frontend. You should be able to see the trips being generated.
 
 > [!NOTE]
 > The simulator currently uses `SASL_PLAIN` authentication to connect to the kafka broker. If you want to use `SCRAM`, you'll need to modify the code in `simulator/exporter/kafka.go`.
-
-### Run the frontend
-
-1. In the `web/` directory, run `npm install` to install the dependencies.
-2. Run `npm run dev` to start the frontend.
-3. Open your browser and navigate to `http://localhost:5173` to view the frontend.
-4. You should now be able to see the trips being generated in the frontend.
 
 ### Create iceberg table
 
