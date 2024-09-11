@@ -23,6 +23,8 @@ We'll then demonstrate how to seamlessly ingest trip data from Snowflake into Si
 
 ## Getting Started
 
+You can check out a video walkthrough of this demo [here](https://drive.google.com/file/d/1bOQM5RJ3KkL1Pz6--AWWOIofk4CI-SHd/view?usp=sharing).
+
 ### Prerequisites
 
 - Docker
