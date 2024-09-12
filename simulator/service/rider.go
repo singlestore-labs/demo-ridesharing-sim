@@ -18,7 +18,7 @@ func StartRiderLoop(userID string, city string) {
 		UpdateStatusForRider(userID, "idle")
 		initLat, initLong := GenerateCoordinateInCity(city)
 		UpdateLocationForRider(userID, initLat, initLong)
-		sleepTime := time.Duration(config.Faker.IntBetween(500, 20000)) * time.Millisecond
+		sleepTime := time.Duration(config.Faker.IntBetween(500, 20000)*getTimeMultiplier()) * time.Millisecond
 		log.Printf("Rider %s is idle for %s\n", userID, sleepTime)
 		time.Sleep(sleepTime)
 		tripID := RequestRide(userID, city)

@@ -17,9 +17,11 @@ func StartDriverLoop(userID string, city string) {
 	initLat, initLong := GenerateCoordinateInCity(city)
 	UpdateLocationForDriver(userID, initLat, initLong)
 	for {
-		UpdateStatusForDriver(userID, "available")
-		sleepTime := time.Duration(config.Faker.IntBetween(500, 2000)) * time.Millisecond
+		UpdateStatusForDriver(userID, "idle")
+		sleepTime := time.Duration(config.Faker.IntBetween(500, 2000)*getTimeMultiplier()) * time.Millisecond
+		log.Printf("Driver %s is idle for %s\n", userID, sleepTime)
 		time.Sleep(sleepTime)
+		UpdateStatusForDriver(userID, "available")
 		lat, long := GetLocationForDriver(userID)
 		request := model.Trip{}
 		accepted := false

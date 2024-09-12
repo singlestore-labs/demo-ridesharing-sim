@@ -13,6 +13,24 @@ import (
 //  SIMULATION FUNCTIONS
 // ================================
 
+// getTimeMultiplier returns a multiplier for the trip time based on the current time of day
+// 1 would be the base time for peak hours, anything above 1 would be slower, anything below 1 would be faster
+func getTimeMultiplier() int {
+	hour := time.Now().Hour()
+	if hour >= 8 && hour < 10 {
+		return 1
+	} else if hour >= 10 && hour < 13 {
+		return 4
+	} else if hour >= 13 && hour < 16 {
+		return 7
+	} else if hour >= 16 && hour < 19 {
+		return 1
+	} else if hour >= 19 && hour < 22 {
+		return 4
+	}
+	return 15
+}
+
 func RequestRide(userID string, city string) string {
 	lat, long := GetLocationForRider(userID)
 	destLat, destLong := GenerateCoordinateInCity(city)
