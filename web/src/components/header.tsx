@@ -58,14 +58,34 @@ export default function Header({ currentPage }: HeaderProps) {
           <Card>
             <div className="flex items-center">
               <Button
-                className={`rounded-r-none hover:bg-singlestore-purple/50 hover:text-white ${database == "singlestore" ? "bg-singlestore-purple text-white" : "bg-transparent text-gray-400"}`}
-                onClick={() => setDatabase("singlestore")}
+                className={`rounded-r-none hover:bg-singlestore-purple/50 hover:text-white ${database === "singlestore" || database === "both" ? "bg-singlestore-purple text-white" : "bg-transparent text-gray-400"}`}
+                onClick={() =>
+                  setDatabase((prev) =>
+                    prev === "singlestore"
+                      ? "snowflake"
+                      : prev === "snowflake"
+                        ? "both"
+                        : prev === "both"
+                          ? "snowflake"
+                          : "singlestore",
+                  )
+                }
               >
                 <SingleStoreSmallLogo size={24} />
               </Button>
               <Button
-                className={`rounded-l-none hover:bg-snowflake-blue/50 hover:text-white ${database === "snowflake" ? "bg-snowflake-blue text-white" : "bg-transparent text-gray-400"}`}
-                onClick={() => setDatabase("snowflake")}
+                className={`rounded-l-none hover:bg-snowflake-blue/50 hover:text-white ${database === "snowflake" || database === "both" ? "bg-snowflake-blue text-white" : "bg-transparent text-gray-400"}`}
+                onClick={() =>
+                  setDatabase((prev) =>
+                    prev === "snowflake"
+                      ? "singlestore"
+                      : prev === "singlestore"
+                        ? "both"
+                        : prev === "both"
+                          ? "singlestore"
+                          : "snowflake",
+                  )
+                }
               >
                 <SnowflakeSmallLogo size={24} />
               </Button>

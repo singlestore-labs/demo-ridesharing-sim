@@ -12,7 +12,7 @@ import Pricing from "@/components/analytics/pricing";
 
 const AnalyticsPage = () => {
   return (
-    <div className="relative min-h-screen w-screen overflow-x-hidden">
+    <div className="">
       <div className="flex w-full flex-col items-start gap-4 p-4">
         <Header currentPage="analytics" />
       </div>
@@ -25,16 +25,18 @@ const AnalyticsPage = () => {
           <Pricing />
         </div>
       </div>
-      <div className="flex flex-col items-start p-4">
-        <h4>Trends</h4>
-      </div>
-      <div className="flex flex-wrap items-center gap-4 px-4 pb-20">
-        <TripsMinuteChart />
-        <TripsHourlyChart />
-        <TripsDailyChart />
-        <WaitTimeMinuteChart />
-        <WaitTimeHourlyChart />
-        <WaitTimeDailyChart />
+      <div className="flex w-full flex-col items-start px-4">
+        <div className="flex flex-col items-start p-4">
+          <h4>Trends</h4>
+        </div>
+        <div className="flex flex-wrap items-center gap-4 px-4 pb-20">
+          <TripsMinuteChart />
+          <TripsHourlyChart />
+          <TripsDailyChart />
+          <WaitTimeMinuteChart />
+          <WaitTimeHourlyChart />
+          <WaitTimeDailyChart />
+        </div>
       </div>
       <div className="fixed bottom-4 right-4 z-50">
         <Toolbar />
