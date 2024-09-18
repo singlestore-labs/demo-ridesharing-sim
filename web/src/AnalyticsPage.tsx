@@ -8,6 +8,7 @@ import WaitTimeDailyChart from "@/components/analytics/wait-time-daily-chart";
 import WaitTimeHourlyChart from "@/components/analytics/wait-time-hourly-chart";
 import WaitTimeMinuteChart from "@/components/analytics/wait-time-minute-chart";
 import { Toolbar } from "@/components/toolbar";
+import Pricing from "@/components/analytics/pricing";
 
 const AnalyticsPage = () => {
   return (
@@ -15,9 +16,14 @@ const AnalyticsPage = () => {
       <div className="flex w-full flex-col items-start gap-4 p-4">
         <Header currentPage="analytics" />
       </div>
-      <div className="flex w-full flex-col items-start gap-4 px-4">
-        <TodayStatistics />
-        <TotalStatistics />
+      <div className="flex w-full flex-wrap items-start gap-4 px-4">
+        <div className="flex flex-col items-start gap-4 px-4">
+          <TodayStatistics />
+          <TotalStatistics />
+        </div>
+        <div className="flex flex-col items-start gap-4 px-4">
+          <Pricing />
+        </div>
       </div>
       <div className="flex flex-col items-start p-4">
         <h4>Trends</h4>

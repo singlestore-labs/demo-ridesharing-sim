@@ -6,9 +6,9 @@ import (
 )
 
 type PricingRecommendation struct {
-	Multiplier           float64
-	LastMinuteRequests   int
-	AvgRequestsPerMinute float64
+	Multiplier           float64 `json:"multiplier"`
+	LastMinuteRequests   int     `json:"last_minute_requests"`
+	AvgRequestsPerMinute float64 `json:"avg_requests_per_minute"`
 }
 
 func GetPricingRecommendation(city string) (PricingRecommendation, error) {
@@ -92,11 +92,11 @@ func getAvgRequestsPerMinute(city string) (float64, error) {
 
 func calculateMultiplier(lastMinuteRequests int, avgRequestsPerMinute float64) float64 {
 	ratio := float64(lastMinuteRequests) / avgRequestsPerMinute
-	if ratio <= 1 {
+	if ratio <= 1.15 {
 		return 1.0
 	} else if ratio <= 1.5 {
 		return 1.2
-	} else if ratio <= 2 {
+	} else if ratio <= 2.25 {
 		return 1.5
 	} else {
 		return 2.0

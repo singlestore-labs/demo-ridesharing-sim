@@ -1,9 +1,5 @@
-import {
-  BACKEND_URL,
-  SINGLESTORE_PURPLE_700,
-  SNOWFLAKE_BLUE,
-} from "@/consts/config";
-import { useCity, useDatabase, useRefreshInterval } from "@/lib/store";
+import { BACKEND_URL, SNOWFLAKE_BLUE } from "@/consts/config";
+import { useCity, useRefreshInterval } from "@/lib/store";
 import axios from "axios";
 import { useState, useEffect, useCallback } from "react";
 import { XAxis, YAxis, Bar, BarChart } from "recharts";
@@ -18,7 +14,7 @@ import { DatabaseResultLabel } from "@/components/ui/database-result-label";
 import { format } from "date-fns";
 
 export default function TripsDailyChart() {
-  const database = useDatabase();
+  const database = "snowflake";
   const city = useCity();
   const [latency, setLatency] = useState(0);
   const [chartData, setChartData] = useState([]);
@@ -77,8 +73,7 @@ export default function TripsDailyChart() {
   const chartConfig = {
     trips: {
       label: "Trips",
-      color:
-        database === "singlestore" ? SINGLESTORE_PURPLE_700 : SNOWFLAKE_BLUE,
+      color: SNOWFLAKE_BLUE,
     },
   } satisfies ChartConfig;
 
