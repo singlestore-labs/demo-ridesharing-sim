@@ -181,6 +181,10 @@ Environment variables can be specified by creating a `.env` file in root directo
 
 Note that `NUM_RIDERS`, `NUM_DRIVERS`, and `CITY` are set for each simulator instance in the docker compose file, and will not be pulled from the `.env` file.
 
+### Running locally
+
+If you want to run the simulator locally without docker, you can run `make run` in the `simulator/` directory. This will start a single instance of the simulator with the specified environment variables. Kafka topics will be created if they don't exist.
+
 ## API Server
 
 The API server exposes a simple RESTful interface to make queries against the SingleStore and Snowflake databases. The database to query can be specified by the `db` query parameter (can be either `singlestore` or `snowflake`). Each endpoint will also return the query latency in microseconds through the `X-Query-Latency` header.
@@ -222,6 +226,10 @@ Environment variables can be specified by creating a `.env` file in root directo
 
 If any of the SingleStore variables are blank, the API server will skip connecting to SingleStore. Similarly, if any of the Snowflake variables are blank, the API server will skip connecting to Snowflake.
 
+### Running locally
+
+If you want to run the API server locally without docker, you can run `make run` in the `server/` directory.
+
 ## React Dashboard
 
 <picture>
@@ -246,6 +254,17 @@ The database being queried can be changed by selecting the appropriate logo in t
 Environment variables can be specified by creating a `.env` file in the `web/` directory. The following variables are supported:
 
 - `VITE_BACKEND_URL`: The URL of the API server. (default: `http://localhost:8000`)
+
+### Running locally
+
+If you want to run the dashboard locally, you can execute the following in the `web/` directory.
+
+```
+$ npm install
+$ npm run dev
+```
+
+This will start the web server at `http://localhost:5173`. Make sure to set `VITE_BACKEND_URL` to point to the API server.
 
 ## Resources
 
