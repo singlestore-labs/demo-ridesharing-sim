@@ -22,7 +22,7 @@ export default function Pricing() {
   const [latency, setLatency] = useState(0);
 
   const getPricingStats = useCallback(async () => {
-    if (database !== "singlestore") return;
+    if (database !== "both") return;
     const cityParam = city === "All" ? "" : city;
     if (cityParam === "") return;
     setLatency(0);
@@ -54,7 +54,7 @@ export default function Pricing() {
     return () => clearInterval(intervalId);
   }, [getPricingStats, refreshInterval]);
 
-  if (database !== "singlestore")
+  if (database !== "both")
     return (
       <div>
         <div className="flex flex-row items-center justify-between">
@@ -64,7 +64,8 @@ export default function Pricing() {
           <div className="flex flex-row flex-wrap gap-4">
             <Card className="flex flex-col items-center justify-center p-4">
               <p>
-                Enable SingleStore to view real-time pricing recommendations
+                Enable both SingleStore and Snowflake to view real-time pricing
+                recommendations
               </p>
             </Card>
           </div>
@@ -93,7 +94,7 @@ export default function Pricing() {
       <div>
         <div className="flex flex-row items-center justify-between">
           <h4>Pricing Recommendation</h4>
-          <DatabaseResultLabel database={database} latency={latency} />
+          <DatabaseResultLabel database={"singlestore"} latency={latency} />
         </div>
         <div className="mt-2 flex flex-col gap-4">
           <div className="flex flex-row flex-wrap gap-4">

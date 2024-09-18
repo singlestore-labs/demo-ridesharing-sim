@@ -1,5 +1,9 @@
-import { BACKEND_URL, SNOWFLAKE_BLUE } from "@/consts/config";
-import { useCity, useRefreshInterval } from "@/lib/store";
+import {
+  BACKEND_URL,
+  SINGLESTORE_PURPLE_700,
+  SNOWFLAKE_BLUE,
+} from "@/consts/config";
+import { useCity, useDatabase, useRefreshInterval } from "@/lib/store";
 import axios from "axios";
 import { useState, useEffect, useCallback } from "react";
 import { XAxis, YAxis, Bar, BarChart } from "recharts";
@@ -14,7 +18,8 @@ import { DatabaseResultLabel } from "@/components/ui/database-result-label";
 import { format } from "date-fns";
 
 export default function WaitTimeDailyChart() {
-  const database = "snowflake";
+  const database = useDatabase();
+  const [databaseParam, setDatabaseParam] = useState("snowflake");
   const city = useCity();
   const [latency, setLatency] = useState(0);
   const [chartData, setChartData] = useState([]);
@@ -22,10 +27,11 @@ export default function WaitTimeDailyChart() {
 
   const getData = useCallback(async () => {
     setLatency(0);
+    setDatabaseParam(database === "both" ? "snowflake" : database);
     const cityParam = city === "All" ? "" : city;
     try {
       const response = await axios.get(
-        `${BACKEND_URL}/wait-time/last/week?db=${database}&city=${cityParam}`,
+        `${BACKEND_URL}/wait-time/last/week?db=${databaseParam}&city=${cityParam}`,
       );
       const latencyHeader = response.headers["x-query-latency"];
       if (latencyHeader) {
@@ -76,7 +82,10 @@ export default function WaitTimeDailyChart() {
   const chartConfig = {
     time: {
       label: "Wait Time",
-      color: SNOWFLAKE_BLUE,
+      color:
+        databaseParam === "singlestore"
+          ? SINGLESTORE_PURPLE_700
+          : SNOWFLAKE_BLUE,
     },
   } satisfies ChartConfig;
 
@@ -84,7 +93,7 @@ export default function WaitTimeDailyChart() {
     <Card className="h-[400px] w-[600px]">
       <div className="flex flex-row items-center justify-between p-2">
         <h4>Avg rider wait time per day</h4>
-        <DatabaseResultLabel database={database} latency={latency} />
+        <DatabaseResultLabel database={databaseParam} latency={latency} />
       </div>
       <ChartContainer config={chartConfig} className="h-full w-full pb-10 pr-4">
         <BarChart data={chartData}>

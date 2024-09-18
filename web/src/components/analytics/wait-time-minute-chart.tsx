@@ -20,6 +20,7 @@ import { fromZonedTime } from "date-fns-tz";
 
 export default function WaitTimeMinuteChart() {
   const database = useDatabase();
+  const [databaseParam, setDatabaseParam] = useState("snowflake");
   const city = useCity();
   const [latency, setLatency] = useState(0);
   const [chartData, setChartData] = useState([]);
@@ -27,10 +28,11 @@ export default function WaitTimeMinuteChart() {
 
   const getData = useCallback(async () => {
     setLatency(0);
+    setDatabaseParam(database === "both" ? "singlestore" : database);
     const cityParam = city === "All" ? "" : city;
     try {
       const response = await axios.get(
-        `${BACKEND_URL}/wait-time/last/hour?db=${database}&city=${cityParam}`,
+        `${BACKEND_URL}/wait-time/last/hour?db=${databaseParam}&city=${cityParam}`,
       );
       const latencyHeader = response.headers["x-query-latency"];
       if (latencyHeader) {
@@ -88,7 +90,9 @@ export default function WaitTimeMinuteChart() {
     time: {
       label: "Wait Time",
       color:
-        database === "singlestore" ? SINGLESTORE_PURPLE_700 : SNOWFLAKE_BLUE,
+        databaseParam === "singlestore"
+          ? SINGLESTORE_PURPLE_700
+          : SNOWFLAKE_BLUE,
     },
   } satisfies ChartConfig;
 
@@ -96,7 +100,7 @@ export default function WaitTimeMinuteChart() {
     <Card className="h-[400px] w-[600px]">
       <div className="flex flex-row items-center justify-between p-2">
         <h4>Avg rider wait time per minute</h4>
-        <DatabaseResultLabel database={database} latency={latency} />
+        <DatabaseResultLabel database={databaseParam} latency={latency} />
       </div>
       <ChartContainer config={chartConfig} className="h-full w-full pb-10 pr-4">
         <BarChart data={chartData}>
