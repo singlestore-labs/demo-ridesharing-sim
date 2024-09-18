@@ -18,7 +18,7 @@ func StartDriverLoop(userID string, city string) {
 	UpdateLocationForDriver(userID, initLat, initLong)
 	for {
 		UpdateStatusForDriver(userID, "idle")
-		sleepTime := time.Duration(config.Faker.IntBetween(500, 2000)*getTimeMultiplier()) * time.Millisecond
+		sleepTime := time.Duration(config.Faker.IntBetween(500, 2000)*getTimeMultiplier(city)) * time.Millisecond
 		log.Printf("Driver %s is idle for %s\n", userID, sleepTime)
 		time.Sleep(sleepTime)
 		UpdateStatusForDriver(userID, "available")

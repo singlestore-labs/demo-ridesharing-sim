@@ -15,20 +15,37 @@ import (
 
 // getTimeMultiplier returns a multiplier for the trip time based on the current time of day
 // 1 would be the base time for peak hours, anything above 1 would be slower, anything below 1 would be faster
-func getTimeMultiplier() int {
+func getTimeMultiplier(city string) int {
 	hour := time.Now().Hour()
-	if hour >= 8 && hour < 10 {
-		return 1
-	} else if hour >= 10 && hour < 13 {
-		return 4
-	} else if hour >= 13 && hour < 16 {
-		return 7
-	} else if hour >= 16 && hour < 19 {
-		return 1
-	} else if hour >= 19 && hour < 22 {
-		return 4
+	if city == "San Francisco" || city == "San Jose" {
+		// More dramatic multipliers for SF and SJ
+		if hour >= 8 && hour < 10 {
+			return 1
+		} else if hour >= 10 && hour < 13 {
+			return 6
+		} else if hour >= 13 && hour < 16 {
+			return 10
+		} else if hour >= 16 && hour < 19 {
+			return 1
+		} else if hour >= 19 && hour < 22 {
+			return 6
+		}
+		return 15
+	} else {
+		// Less dramatic multipliers for other cities
+		if hour >= 8 && hour < 10 {
+			return 1
+		} else if hour >= 10 && hour < 13 {
+			return 3
+		} else if hour >= 13 && hour < 16 {
+			return 4
+		} else if hour >= 16 && hour < 19 {
+			return 2
+		} else if hour >= 19 && hour < 22 {
+			return 3
+		}
+		return 10
 	}
-	return 15
 }
 
 func RequestRide(userID string, city string) string {
