@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback } from "react";
+import { useRef, useEffect, useCallback, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import {
   BACKEND_URL,
@@ -109,10 +109,12 @@ function DashboardPage() {
   }, [refreshData]);
 
   const getData = async (endpoint: string) => {
+    const databaseParam =
+      selectedDatabase === "both" ? "singlestore" : selectedDatabase;
     const cityParam = selectedCity === "All" ? "" : selectedCity;
     try {
       const response = await axios.get(
-        `${BACKEND_URL}/${endpoint}?db=${selectedDatabase}&city=${cityParam}`,
+        `${BACKEND_URL}/${endpoint}?db=${databaseParam}&city=${cityParam}`,
       );
       const latencyHeader = response.headers["x-query-latency"];
       if (latencyHeader) {

@@ -28,7 +28,10 @@ export default function Header({ currentPage }: HeaderProps) {
   const navigate = useNavigate();
 
   const getCities = async () => {
-    const response = await axios.get(`${BACKEND_URL}/cities?db=${database}`);
+    const databaseParam = database === "both" ? "singlestore" : database;
+    const response = await axios.get(
+      `${BACKEND_URL}/cities?db=${databaseParam}`,
+    );
     setCities(response.data);
   };
 
