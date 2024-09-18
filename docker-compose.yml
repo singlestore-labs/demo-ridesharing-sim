@@ -35,8 +35,8 @@ services:
   simulator-1:
     image: ridesharing_simulator:latest
     environment:
-      NUM_RIDERS: 176
-      NUM_DRIVERS: 188
+      NUM_RIDERS: 276
+      NUM_DRIVERS: 288
       CITY: "San Jose"
       KAFKA_BROKER: $KAFKA_BROKER
       KAFKA_SASL_USERNAME: $KAFKA_SASL_USERNAME
