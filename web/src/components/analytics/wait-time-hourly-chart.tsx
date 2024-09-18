@@ -80,6 +80,11 @@ export default function WaitTimeHourlyChart() {
     return () => clearInterval(intervalId);
   }, [getData, refreshInterval]);
 
+  const getYAxisDomain = useCallback(() => {
+    const maxTime = Math.max(...chartData.map((item: any) => item.time));
+    return [0, Math.ceil(maxTime * 1.1)];
+  }, [chartData]);
+
   const chartConfig = {
     time: {
       label: "Wait Time",
@@ -107,6 +112,7 @@ export default function WaitTimeHourlyChart() {
             tickFormatter={(tick) => {
               return tick.toLocaleString() + "s";
             }}
+            domain={getYAxisDomain()}
           />
           <Bar dataKey="time" fill="var(--color-time)" radius={4} />
           <ChartTooltip
