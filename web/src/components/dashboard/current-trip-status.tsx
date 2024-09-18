@@ -62,6 +62,7 @@ export function CurrentTripStatus({ refreshInterval }: CurrentTripStatusProps) {
 
   const getTripStats = async () => {
     setLatency(0);
+    const databaseParam = database === "both" ? "singlestore" : database;
     const cityParam = city === "All" ? "" : city;
     const response = await axios.get(
       `${BACKEND_URL}/trips/current/status?db=${databaseParam}&city=${cityParam}`,

@@ -26,9 +26,13 @@ export default function TripsHourlyChart() {
   const [chartData, setChartData] = useState([]);
   const refreshInterval = useRefreshInterval();
 
+  useEffect(() => {
+    setDatabaseParam(database === "both" ? "singlestore" : database);
+  }, [database]);
+
   const getData = useCallback(async () => {
     setLatency(0);
-    setDatabaseParam(database === "both" ? "singlestore" : database);
+    const databaseParam = database === "both" ? "singlestore" : database;
     const cityParam = city === "All" ? "" : city;
     try {
       const response = await axios.get(

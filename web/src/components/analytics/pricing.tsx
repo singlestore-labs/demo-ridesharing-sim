@@ -120,7 +120,7 @@ export default function Pricing() {
     <div>
       <div className="flex flex-row items-center justify-between">
         <h4>Pricing Recommendation</h4>
-        <DatabaseResultLabel database={database} latency={latency} />
+        <DatabaseResultLabel database={"singlestore"} latency={latency} />
       </div>
       <div className="mt-2 flex flex-col gap-4">
         <div className="flex flex-row flex-wrap gap-4">

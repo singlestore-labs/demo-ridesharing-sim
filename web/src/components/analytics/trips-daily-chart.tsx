@@ -25,9 +25,13 @@ export default function TripsDailyChart() {
   const [chartData, setChartData] = useState([]);
   const refreshInterval = useRefreshInterval();
 
+  useEffect(() => {
+    setDatabaseParam(database === "both" ? "snowflake" : database);
+  }, [database]);
+
   const getData = useCallback(async () => {
     setLatency(0);
-    setDatabaseParam(database === "both" ? "snowflake" : database);
+    const databaseParam = database === "both" ? "snowflake" : database;
     const cityParam = city === "All" ? "" : city;
     try {
       const response = await axios.get(

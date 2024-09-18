@@ -26,9 +26,13 @@ export default function TotalStatistics() {
   const [tripStats, setTripStats] = useState<TripStats | null>(null);
   const [latency, setLatency] = useState(0);
 
+  useEffect(() => {
+    setDatabaseParam(database === "both" ? "singlestore" : database);
+  }, [database]);
+
   const getTripStats = useCallback(async () => {
     setLatency(0);
-    setDatabaseParam(database === "both" ? "snowflake" : database);
+    const databaseParam = database === "both" ? "snowflake" : database;
     const cityParam = city === "All" ? "" : city;
     try {
       const response = await axios.get(
