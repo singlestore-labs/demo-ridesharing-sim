@@ -72,9 +72,9 @@ You can check out a video walkthrough of this demo [here](https://drive.google.c
 
 ### Run the simulator, server, and dashboard
 
-1. Run `make build` to build the docker images.
-2. Run `docker compose up` to start everything.
-3. Copy `example.env` to `.env` and modify the values. You can ignore the SingleStore variables for now.
+1. Copy `example.env` to `.env` and modify the values to match your setup. You can ignore the SingleStore variables for now.
+2. Run `make build` to build the docker images.
+3. Run `docker compose up` to start everything.
 4. You should see kafka topics being created and trips being generated.
 5. The API server should be running on port 8000.
 6. The React dashboard should be running on port 8080.
