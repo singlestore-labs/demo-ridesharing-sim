@@ -99,7 +99,7 @@ You can check out a video walkthrough of this demo [here](https://drive.google.c
 5. Run the whole notebook.
 6. Your tables should now be pulling in trip information from our kafka topics.
 7. Update the SingleStore variables in your `.env` file, and restart the docker compose stack.
-8. Open the React frontend, and select the SingleStore logo in the header. You should be able to see analytics from the trip data updating in real-time.
+8. Open the React frontend, and select the SingleStore logo in the header. You should be able to see analytics from the trip data updating in real-time, as well as see the new pricing reccomendations in the analytics page.
 
 ## Simulator
 
