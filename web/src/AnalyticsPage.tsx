@@ -3,7 +3,6 @@ import TotalStatistics from "@/components/analytics/total-statistics";
 import TodayStatistics from "@/components/analytics/today-statistics";
 import TripsHourlyChart from "@/components/analytics/trips-hourly-chart";
 import TripsDailyChart from "@/components/analytics/trips-daily-chart";
-import TripsMinuteChart from "@/components/analytics/trips-minute-chart";
 import WaitTimeDailyChart from "@/components/analytics/wait-time-daily-chart";
 import WaitTimeHourlyChart from "@/components/analytics/wait-time-hourly-chart";
 import WaitTimeMinuteChart from "@/components/analytics/wait-time-minute-chart";
