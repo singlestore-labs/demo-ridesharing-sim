@@ -2,7 +2,7 @@
 
 **Attention**: The code in this repository is intended for experimental use only and is not fully tested, documented, or supported by SingleStore. Visit the [SingleStore Forums](https://www.singlestore.com/forum/) to ask questions about this repository.
 
-<img src="/assets/demo.gif" alt="Ridesharing demo" width="50%">
+<img src="/assets/demo.gif" alt="Ridesharing demo" width="100%">
 
 ## Overview
 
